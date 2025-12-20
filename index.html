@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Docentes Brown - Tienda</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #1e3a5f; /* Azul Docentes Brown */
+            --bg-color: #f2f2f7; /* Gris iOS */
+            --card-bg: #ffffff;
+            --text-color: #000000;
+            --secondary-text: #8e8e93;
+            --price-color: #34c759; /* Verde iOS */
+            --separator: #c6c6c8;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Header estilo App */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 0.5px solid var(--separator);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: var(--primary-color);
+        }
+
+        /* Contenedor principal */
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Buscador estilo iOS */
+        .search-wrapper {
+            background-color: #e3e3e8;
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-wrapper i {
+            color: var(--secondary-text);
+            margin-right: 8px;
+        }
+
+        .search-wrapper input {
+            border: none;
+            background: transparent;
+            font-size: 17px;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Tarjetas de Producto */
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+            cursor: pointer;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+        }
+
+        .product-img {
+            width: 70px;
+            height: 70px;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: var(--secondary-text);
+            margin-bottom: 6px;
+        }
+
+        .product-price {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* MODAL (Estilo iOS Bottom Sheet) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1001;
+            padding-bottom: 30px;
+        }
+
+        .modal.active {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 0.5px solid var(--separator);
+            position: relative;
+        }
+
+        .modal-drag-bar {
+            width: 40px;
+            height: 5px;
+            background: #d1d1d6;
+            border-radius: 3px;
+            margin: 0 auto 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e3e3e8;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        /* Lista de opciones en el Modal */
+        .options-list {
+            padding: 0 20px;
+        }
+
+        .option-group {
+            margin-top: 20px;
+        }
+
+        .group-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--secondary-text);
+            margin-bottom: 8px;
+            padding-left: 5px;
+        }
+
+        .option-item {
+            background: #f2f2f7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        .option-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .whatsapp-btn {
+            display: block;
+            background-color: #25D366;
+            color: white;
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 17px;
+            margin: 30px 20px 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">Docentes Brown</div>
+    </header>
+
+    <div class="container">
+        <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Buscar agenda...">
+        </div>
+
+        <div id="productsContainer"></div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="productModal">
+        <div class="modal-header">
+            <div class="modal-drag-bar"></div>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h3 id="modalTitle" style="margin:0; font-size:18px;">Detalle</h3>
+        </div>
+        
+        <div class="options-list">
+            
+            <div class="option-group">
+                <div class="group-title">Modelo</div>
+                <div class="option-item">
+                    <span id="modalModel">...</span>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <div class="group-title">Adicionales / Opciones</div>
+                
+                <div class="option-item">
+                    <span id="modalDigitalName">Digital</span>
+                    <span class="option-price" id="modalDigitalPrice">$0</span>
+                </div>
+
+                <div class="option-item">
+                    <span id="modalLibName">Librería</span>
+                    <span class="option-price" id="modalLibPrice">$0</span>
+                </div>
+
+                <div class="option-item">
+                    <span id="modalExtraName">Extra</span>
+                    <span class="option-price" id="modalExtraPrice">$0</span>
+                </div>
+            </div>
+
+            <a href="#" id="waLink" class="whatsapp-btn">
+                <i class="fab fa-whatsapp"></i> Hacer Pedido
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE DATOS (EDITA ESTO)
+        // ==========================================
+        
+        const products = [
+            {
+                id: 1,
+                title: "1 - Calificador Docente 2026 (Profesorxs)",
+                desc: "Hojas Nat Ledesma - Caña de azúcar",
+                // AQUÍ: Pon el valor de la Celda B2
+                price: "$ [VALOR CELDA B2]", 
+                
+                // Detalles del Modal para este producto
+                details: {
+                    model: "Modelo A4 Profesorxs", // Columna E
+                    digitalName: "Versión Digital", // Columna G
+                    digitalPrice: "$ [VALOR CELDA H]", // Columna H
+                    libName: "Kit Librería", // Columna I
+                    libPrice: "$ [VALOR CELDA J]", // Columna J
+                    extraName: "Opción Extra", // Columna K
+                    extraPrice: "$ [VALOR CELDA L]" // Columna L
+                }
+            },
+            {
+                id: 2,
+                title: "2 - Calificador Docente 2026 (Maestrxs)",
+                desc: "Anillado PVC - Sin químicos",
+                // AQUÍ: Pon el valor de la Celda D2
+                price: "$ [VALOR CELDA D2]", 
+
+                // Si los precios de los opcionales cambian para este producto,
+                // edita los valores abajo. Si son los mismos, repite los de arriba.
+                details: {
+                    model: "Modelo A4 Maestrxs", // Columna E
+                    digitalName: "Versión Digital", 
+                    digitalPrice: "$ [VALOR CELDA H]", 
+                    libName: "Kit Librería",
+                    libPrice: "$ [VALOR CELDA J]", 
+                    extraName: "Opción Extra",
+                    extraPrice: "$ [VALOR CELDA L]"
+                }
+            }
+        ];
+
+        // ==========================================
+        // LÓGICA DE LA APP (NO TOCAR)
+        // ==========================================
+
+        const container = document.getElementById('productsContainer');
+        const modal = document.getElementById('productModal');
+        const overlay = document.getElementById('modalOverlay');
+
+        // Renderizar productos
+        function renderProducts(filter = "") {
+            container.innerHTML = "";
+            const filtered = products.filter(p => p.title.toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => openModal(p);
+                card.innerHTML = `
+                    <div class="product-img"></div>
+                    <div class="product-info">
+                        <div class="product-title">${p.title}</div>
+                        <div class="product-desc">${p.desc}</div>
+                        <div class="product-price">Desde ${p.price}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#c7c7cc"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Abrir Modal con datos dinámicos
+        function openModal(product) {
+            // Llenar datos
+            document.getElementById('modalTitle').textContent = product.title;
+            document.getElementById('modalModel').textContent = product.details.model;
+            
+            document.getElementById('modalDigitalName').textContent = product.details.digitalName;
+            document.getElementById('modalDigitalPrice').textContent = product.details.digitalPrice;
+            
+            document.getElementById('modalLibName').textContent = product.details.libName;
+            document.getElementById('modalLibPrice').textContent = product.details.libPrice;
+            
+            document.getElementById('modalExtraName').textContent = product.details.extraName;
+            document.getElementById('modalExtraPrice').textContent = product.details.extraPrice;
+
+            // Configurar botón de WhatsApp
+            const msg = `Hola Docentes Brown, quiero consultar por: ${product.title}`;
+            document.getElementById('waLink').href = `https://wa.me/5491100000000?text=${encodeURIComponent(msg)}`;
+
+            // Mostrar
+            overlay.style.display = 'block';
+            // Pequeño delay para permitir la transición CSS
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        // Cerrar al clickear afuera
+        overlay.onclick = closeModal;
+
+        // Buscador
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderProducts(e.target.value);
+        });
+
+        // Iniciar
+        renderProducts();
+
+    </script>
+</body>
+</html>
