@@ -1,167 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tienda Docentes Brown</title>
+
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --blue:#1A3B5C;
+    --bg:#F2F2F7;
+}
+body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
+    background:var(--bg);
+    padding-bottom:120px;
+}
+header{
+    background:var(--blue);
+    color:#fff;
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+}
+.container{max-width:600px;margin:auto;padding:20px;}
+.product-card{
+    background:#fff;
+    padding:20px;
+    border-radius:20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.05);
+    cursor:pointer;
+}
+.product-title{font-family:'League Spartan';font-size:1.4rem;color:var(--blue);}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);justify-content:flex-end;}
+.modal.active{display:flex;}
+.modal-content{
+    background:#fff;
+    width:100%;
+    max-width:600px;
+    border-radius:25px 25px 0 0;
+    padding:25px;
+}
+.form-group{margin-bottom:15px;}
+select,input{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ddd;
+}
+.current-price{
+    text-align:center;
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--blue);
+}
+.cart{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    padding:15px 25px;
+    border-radius:100px;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    display:none;
+}
+.cart.show{display:flex;gap:20px;align-items:center;}
+.admin-panel{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+.admin-box{
+    background:#fff;
+    padding:25px;
+    border-radius:20px;
+    width:300px;
+}
+</style>
+</head>
+
+<body>
+
+<header id="header">Docentes Brown</header>
+
+<div class="container">
+    <div class="product-card" onclick="openModal('profesores')">
+        <div class="product-title">Calificador Profesores</div>
+    </div>
+    <div class="product-card" onclick="openModal('maestros')">
+        <div class="product-title">Calificador Maestrxs</div>
+    </div>
+    <div class="product-card" onclick="openModal('digital')">
+        <div class="product-title">Calificador Digital</div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-content">
+<h3 id="modalTitle"></h3>
+<div id="fields"></div>
+<div class="current-price" id="price">$0</div>
+<button onclick="addToCart()">Agregar</button>
+</div>
+</div>
+
+<!-- CARRITO -->
+<div class="cart" id="cart">
+<span id="cartTotal">$0</span>
+<button onclick="checkout()">WhatsApp</button>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-panel" id="admin">
+<div class="admin-box">
+<h3>Admin</h3>
+<input type="password" id="adminPass" placeholder="Contraseña">
+<input type="number" id="discount" placeholder="Descuento %">
+<button onclick="loginAdmin()">Aplicar</button>
+</div>
+</div>
+
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?output=csv";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?output=csv";
+const ADMIN_PASS="Brown2025";
+const WA="5491153196358";
 
-let DATA = {};
-let cart = [];
-let currentProductType = '';
-let currentSelection = {};
+let DATA={},cart=[],currentType="",discount=Number(localStorage.getItem("discount")||0);
 
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modal-title');
-const dynamicFields = document.getElementById('dynamic-fields');
-const modalPriceDisplay = document.getElementById('modal-price');
-const btnAdd = document.getElementById('btn-add-cart');
-const cartFloat = document.getElementById('cart-float');
-const cartCount = document.getElementById('cart-count');
-const cartTotal = document.getElementById('cart-total');
-
-const WA_NUMBER = "5491153196358";
-
-/* =====================
-   CARGA CSV
-===================== */
-fetch(CSV_URL)
-  .then(res => res.text())
-  .then(text => parseCSV(text));
-
-function parseCSV(text) {
-    const rows = text.split("\n").slice(1);
-    rows.forEach(r => {
-        const [producto, categoria, nombre, precio] = r.split(",");
-        if (!producto || !categoria) return;
-
-        if (!DATA[producto]) DATA[producto] = {};
-        if (!DATA[producto][categoria]) DATA[producto][categoria] = [];
-
-        DATA[producto][categoria].push({
-            name: nombre,
-            price: parseInt(precio) || 0
-        });
+fetch(CSV_URL).then(r=>r.text()).then(t=>{
+    t.split("\n").slice(1).forEach(r=>{
+        let [prod,tipo,cat,name,price]=r.split(",");
+        if(!prod)return;
+        DATA[prod]??={};
+        DATA[prod][cat]??=[];
+        DATA[prod][cat].push({name,price:Number(price)});
     });
+});
+
+function openModal(t){
+    currentType=t;
+    document.getElementById("modal").classList.add("active");
+    renderFields();
+}
+function renderFields(){
+    const f=document.getElementById("fields");
+    f.innerHTML="";
+    const add=(label,cat)=>{
+        f.innerHTML+=`<div class="form-group">
+        <label>${label}</label>
+        <select onchange="updatePrice()">
+        <option value="0">Seleccionar</option>
+        ${DATA[currentType]?.[cat]?.map(o=>`<option value="${o.price}">${o.name}</option>`).join("")}
+        </select></div>`;
+    };
+    if(currentType!="digital"){
+        add("Base","cursos");
+        add("Tema","temas");
+        add("Extras","adicionales");
+    }else add("Formato","formato");
+}
+function updatePrice(){
+    let t=0;
+    document.querySelectorAll("select").forEach(s=>t+=Number(s.value));
+    if(discount>0)t*=1-discount/100;
+    document.getElementById("price").innerText="$"+t.toLocaleString("es-AR");
+}
+function addToCart(){
+    let p=document.getElementById("price").innerText.replace(/\D/g,"");
+    cart.push(Number(p));
+    document.getElementById("modal").classList.remove("active");
+    updateCart();
+}
+function updateCart(){
+    const t=cart.reduce((a,b)=>a+b,0);
+    document.getElementById("cart").classList.add("show");
+    document.getElementById("cartTotal").innerText="$"+t.toLocaleString("es-AR");
+}
+function checkout(){
+    window.open(`https://wa.me/${WA}?text=Total%20$${cart.reduce((a,b)=>a+b,0)}`);
 }
 
-/* =====================
-   MODAL
-===================== */
-function openModal(type) {
-    currentProductType = type;
-    renderFields(type);
-    updatePrice();
-    modal.classList.add('active');
-}
-
-function closeModal() {
-    modal.classList.remove('active');
-}
-
-function renderFields(type) {
-    let html = '';
-
-    const createSelect = (label, id, options) => `
-        <div class="form-group">
-            <label class="form-label">${label}</label>
-            <div class="select-wrapper">
-                <select id="${id}" onchange="updatePrice()">
-                    <option value="0">Seleccionar...</option>
-                    ${options.map(o =>
-                        `<option value="${o.price}" data-name="${o.name}">${o.name}</option>`
-                    ).join("")}
-                </select>
-            </div>
-        </div>
-    `;
-
-    if (type === 'profesores') {
-        modalTitle.innerText = "Configurar Calificador Profesores";
-        html += createSelect("Cursos", "sel-base", DATA.profesores.cursos);
-        html += createSelect("Tema", "sel-tema", DATA.comunes.temas);
-        html += createSelect("Librería", "sel-lib", DATA.comunes.libreria);
-        html += createSelect("Adicionales", "sel-add", DATA.comunes.adicionales);
-        html += createSelect("Digital", "sel-dig", DATA.digitales.formato);
+/* ADMIN */
+let clicks=0;
+document.getElementById("header").onclick=()=>{
+    clicks++;
+    if(clicks===3){
+        document.getElementById("admin").style.display="flex";
+        clicks=0;
     }
-
-    if (type === 'maestros') {
-        modalTitle.innerText = "Configurar Calificador Maestrxs";
-        html += createSelect("Grados", "sel-base", DATA.maestros.grados);
-        html += createSelect("Tema", "sel-tema", DATA.comunes.temas);
-        html += createSelect("Librería", "sel-lib", DATA.comunes.libreria);
-        html += createSelect("Adicionales", "sel-add", DATA.comunes.adicionales);
-        html += createSelect("Digital", "sel-dig", DATA.digitales.formato);
-    }
-
-    if (type === 'digital') {
-        modalTitle.innerText = "Calificador Digital";
-        html += createSelect("Formato", "sel-base", DATA.digitales.formato);
-    }
-
-    dynamicFields.innerHTML = html;
+};
+function loginAdmin(){
+    if(document.getElementById("adminPass").value!==ADMIN_PASS)return alert("Error");
+    discount=Number(document.getElementById("discount").value||0);
+    localStorage.setItem("discount",discount);
+    alert("Descuento aplicado");
+    document.getElementById("admin").style.display="none";
 }
-
-/* =====================
-   PRECIOS
-===================== */
-function updatePrice() {
-    const selects = dynamicFields.querySelectorAll("select");
-    let total = 0;
-    let valid = true;
-    let details = [];
-
-    selects.forEach(sel => {
-        const price = parseInt(sel.value);
-        const name = sel.options[sel.selectedIndex]?.dataset.name;
-
-        if (sel.id === "sel-base" && price === 0) valid = false;
-        total += price;
-        if (name) details.push(name);
-    });
-
-    modalPriceDisplay.innerText = `$${total.toLocaleString("es-AR")}`;
-    btnAdd.disabled = !valid;
-
-    currentSelection = { price: total, details };
-}
-
-/* =====================
-   CARRITO
-===================== */
-function addToCart() {
-    if (btnAdd.disabled) return;
-
-    cart.push({
-        product: currentProductType,
-        details: currentSelection.details,
-        price: currentSelection.price
-    });
-
-    closeModal();
-    updateCartUI();
-}
-
-function updateCartUI() {
-    if (!cart.length) return cartFloat.classList.add("hidden");
-
-    cartFloat.classList.remove("hidden");
-    const total = cart.reduce((s, i) => s + i.price, 0);
-
-    cartCount.innerText = `${cart.length} ítems`;
-    cartTotal.innerText = `Total: $${total.toLocaleString("es-AR")}`;
-}
-
-function checkout() {
-    let msg = "Hola! Quiero el siguiente pedido:\n\n";
-    let total = 0;
-
-    cart.forEach((i, n) => {
-        msg += `${n+1}. ${i.product}\n`;
-        i.details.forEach(d => msg += `- ${d}\n`);
-        msg += `Precio: $${i.price}\n\n`;
-        total += i.price;
-    });
-
-    msg += `TOTAL: $${total.toLocaleString("es-AR")}`;
-
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`);
-}
-
-window.onclick = e => { if (e.target == modal) closeModal(); }
 </script>
+
+</body>
+</html>
