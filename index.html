@@ -1,209 +1,323 @@
+- Precios dinámicos en modal, carrito y WhatsApp
+- **Admin oculto**
+- 5 clicks en “Docentes Brown”
+- Password: `Brown2025`
+- Descuento global %
+- Persistente (localStorage)
+- NO rompe UX
+- NO cambia diseño
+- NO inventa estructuras
+
+---
+
+## 📌 IMPORTANTE
+👉 Copiá **TODO** este archivo tal cual  
+👉 Reemplazá tu `index.html`  
+👉 No mezcles con código viejo
+
+---
+
+## 🧩 CÓDIGO HTML COMPLETO
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tienda Docentes Brown</title>
 
-<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
-    --blue:#1A3B5C;
-    --bg:#F2F2F7;
+  --primary-blue:#1A3B5C;
+  --bg-color:#F2F2F7;
+  --card-bg:#FFFFFF;
+  --text-secondary:#8E8E93;
+  --radius-card:20px;
+  --radius-btn:12px;
+  --font-brand:'League Spartan',sans-serif;
 }
+*{box-sizing:border-box;}
 body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
-    background:var(--bg);
-    padding-bottom:120px;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  background:var(--bg-color);
+  padding-bottom:110px;
 }
 header{
-    background:var(--blue);
-    color:#fff;
-    padding:20px;
-    text-align:center;
-    cursor:pointer;
+  background:var(--primary-blue);
+  padding:20px;
+  text-align:center;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-.container{max-width:600px;margin:auto;padding:20px;}
+header h1{
+  color:#fff;
+  margin:0;
+  font-family:var(--font-brand);
+  font-size:1.5rem;
+}
+header p{color:#ccc;margin:5px 0 0;}
+.container{padding:20px;max-width:600px;margin:auto;}
 .product-card{
-    background:#fff;
-    padding:20px;
-    border-radius:20px;
-    margin-bottom:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,.05);
-    cursor:pointer;
+  background:#fff;
+  border-radius:var(--radius-card);
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+  cursor:pointer;
 }
-.product-title{font-family:'League Spartan';font-size:1.4rem;color:var(--blue);}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);justify-content:flex-end;}
-.modal.active{display:flex;}
+.product-title{
+  font-family:var(--font-brand);
+  font-size:1.4rem;
+  color:var(--primary-blue);
+}
+.product-desc{color:var(--text-secondary);margin:10px 0;}
+.price-tag{font-weight:600;color:var(--primary-blue);}
+
+/* MODAL */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  justify-content:flex-end;
+  z-index:20;
+}
+.modal-overlay.active{display:flex;}
 .modal-content{
-    background:#fff;
-    width:100%;
-    max-width:600px;
-    border-radius:25px 25px 0 0;
-    padding:25px;
+  background:#fff;
+  width:100%;
+  max-width:600px;
+  border-radius:25px 25px 0 0;
+  padding:25px;
+  max-height:90vh;
+  overflow:auto;
 }
-.form-group{margin-bottom:15px;}
-select,input{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid #ddd;
+.close-modal{
+  position:absolute;
+  top:15px;
+  right:20px;
+  font-size:24px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+.form-group{margin-bottom:18px;}
+.form-label{font-weight:600;font-size:.9rem;}
+select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  background:#F9F9F9;
 }
 .current-price{
-    text-align:center;
-    font-size:1.5rem;
-    font-weight:800;
-    color:var(--blue);
+  text-align:center;
+  font-size:1.5rem;
+  font-weight:800;
+  color:var(--primary-blue);
+  margin:20px 0;
 }
-.cart{
-    position:fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#fff;
-    padding:15px 25px;
-    border-radius:100px;
-    box-shadow:0 5px 20px rgba(0,0,0,.15);
-    display:none;
+.btn-add{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:14px;
+  background:var(--primary-blue);
+  color:#fff;
+  font-size:1.1rem;
 }
-.cart.show{display:flex;gap:20px;align-items:center;}
-.admin-panel{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    display:none;
-    justify-content:center;
-    align-items:center;
+.btn-add:disabled{background:#ccc;}
+
+/* CARRITO */
+.cart-float{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  max-width:550px;
+  background:#fff;
+  border-radius:100px;
+  padding:15px 20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.15);
+  display:none;
+  justify-content:space-between;
+  align-items:center;
 }
-.admin-box{
-    background:#fff;
-    padding:25px;
-    border-radius:20px;
-    width:300px;
+.cart-float.show{display:flex;}
+.cart-total{font-weight:800;color:var(--primary-blue);}
+.btn-whatsapp{
+  background:#25D366;
+  color:#fff;
+  padding:10px 20px;
+  border-radius:20px;
+  text-decoration:none;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<header id="header">Docentes Brown</header>
+<header>
+  <h1 id="adminTrigger">Docentes Brown</h1>
+  <p>Herramientas de Gestión Educativa</p>
+</header>
 
 <div class="container">
-    <div class="product-card" onclick="openModal('profesores')">
-        <div class="product-title">Calificador Profesores</div>
-    </div>
-    <div class="product-card" onclick="openModal('maestros')">
-        <div class="product-title">Calificador Maestrxs</div>
-    </div>
-    <div class="product-card" onclick="openModal('digital')">
-        <div class="product-title">Calificador Digital</div>
-    </div>
+  <div class="product-card" onclick="openModal('profesores')">
+      <div class="product-title">Calificador Profesores</div>
+      <div class="product-desc">Gestión de cursos y promedios</div>
+      <span class="price-tag">Configurar ➜</span>
+  </div>
+
+  <div class="product-card" onclick="openModal('maestros')">
+      <div class="product-title">Calificador Maestrxs</div>
+      <div class="product-desc">Grados, notas y asistencia</div>
+      <span class="price-tag">Configurar ➜</span>
+  </div>
+
+  <div class="product-card" onclick="openModal('digital')">
+      <div class="product-title">Calificador Digital</div>
+      <div class="product-desc">Excel o App móvil</div>
+      <span class="price-tag">Configurar ➜</span>
+  </div>
 </div>
 
 <!-- MODAL -->
-<div class="modal" id="modal">
+<div class="modal-overlay" id="modal">
 <div class="modal-content">
-<h3 id="modalTitle"></h3>
-<div id="fields"></div>
-<div class="current-price" id="price">$0</div>
-<button onclick="addToCart()">Agregar</button>
+<button class="close-modal" onclick="closeModal()">×</button>
+<h2 id="modalTitle"></h2>
+<div id="dynamic-fields"></div>
+<div class="current-price" id="modal-price">$0</div>
+<button class="btn-add" id="btnAdd" onclick="addToCart()" disabled>Agregar al pedido</button>
 </div>
 </div>
 
 <!-- CARRITO -->
-<div class="cart" id="cart">
-<span id="cartTotal">$0</span>
-<button onclick="checkout()">WhatsApp</button>
-</div>
-
-<!-- ADMIN -->
-<div class="admin-panel" id="admin">
-<div class="admin-box">
-<h3>Admin</h3>
-<input type="password" id="adminPass" placeholder="Contraseña">
-<input type="number" id="discount" placeholder="Descuento %">
-<button onclick="loginAdmin()">Aplicar</button>
-</div>
+<div class="cart-float" id="cart">
+<div class="cart-total" id="cartTotal">$0</div>
+<a class="btn-whatsapp" onclick="checkout()">Enviar pedido</a>
 </div>
 
 <script>
 const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?output=csv";
+const WA_NUMBER="5491153196358";
 const ADMIN_PASS="Brown2025";
-const WA="5491153196358";
 
-let DATA={},cart=[],currentType="",discount=Number(localStorage.getItem("discount")||0);
+let DATA={prof:[],maes:[],tema:[],dig:[],lib:[],add:[]};
+let cart=[],currentType="",currentSelection={};
+let discount=Number(localStorage.getItem("discount")||0);
 
+/* CARGA CSV */
 fetch(CSV_URL).then(r=>r.text()).then(t=>{
-    t.split("\n").slice(1).forEach(r=>{
-        let [prod,tipo,cat,name,price]=r.split(",");
-        if(!prod)return;
-        DATA[prod]??={};
-        DATA[prod][cat]??=[];
-        DATA[prod][cat].push({name,price:Number(price)});
-    });
+  t.split("\n").slice(1).forEach(l=>{
+      const r=l.split(",");
+      if(r[0])DATA.prof.push({n:r[0],p:+r[1]});
+      if(r[2])DATA.maes.push({n:r[2],p:+r[3]});
+      if(r[4])DATA.tema.push({n:r[4],p:+r[5]});
+      if(r[6])DATA.dig.push({n:r[6],p:+r[7]});
+      if(r[8])DATA.lib.push({n:r[8],p:+r[9]});
+      if(r[10])DATA.add.push({n:r[10],p:+r[11]});
+  });
 });
 
+/* MODAL */
 function openModal(t){
-    currentType=t;
-    document.getElementById("modal").classList.add("active");
-    renderFields();
+  currentType=t;
+  document.getElementById("modal").classList.add("active");
+  renderFields();
+}
+function closeModal(){
+  document.getElementById("modal").classList.remove("active");
+}
+function select(label,id,arr){
+  return `<div class="form-group">
+      <label class="form-label">${label}</label>
+      <select id="${id}" onchange="updatePrice()">
+          <option value="0">Seleccionar...</option>
+          ${arr.map(o=>`<option value="${o.p}" data-name="${o.n}">${o.n}</option>`).join("")}
+      </select>
+  </div>`;
 }
 function renderFields(){
-    const f=document.getElementById("fields");
-    f.innerHTML="";
-    const add=(label,cat)=>{
-        f.innerHTML+=`<div class="form-group">
-        <label>${label}</label>
-        <select onchange="updatePrice()">
-        <option value="0">Seleccionar</option>
-        ${DATA[currentType]?.[cat]?.map(o=>`<option value="${o.price}">${o.name}</option>`).join("")}
-        </select></div>`;
-    };
-    if(currentType!="digital"){
-        add("Base","cursos");
-        add("Tema","temas");
-        add("Extras","adicionales");
-    }else add("Formato","formato");
+  let h="";
+  if(currentType==="profesores"){
+      h+=select("Cursos","base",DATA.prof);
+      h+=select("Tema","tema",DATA.tema);
+      h+=select("Librería","lib",DATA.lib);
+      h+=select("Adicionales","add",DATA.add);
+      h+=select("Digital","dig",DATA.dig);
+  }
+  if(currentType==="maestros"){
+      h+=select("Grados","base",DATA.maes);
+      h+=select("Tema","tema",DATA.tema);
+      h+=select("Librería","lib",DATA.lib);
+      h+=select("Adicionales","add",DATA.add);
+      h+=select("Digital","dig",DATA.dig);
+  }
+  if(currentType==="digital"){
+      h+=select("Formato","base",DATA.dig);
+  }
+  document.getElementById("dynamic-fields").innerHTML=h;
+  document.getElementById("btnAdd").disabled=true;
+  document.getElementById("modal-price").innerText="$0";
 }
+
+/* PRECIO */
 function updatePrice(){
-    let t=0;
-    document.querySelectorAll("select").forEach(s=>t+=Number(s.value));
-    if(discount>0)t*=1-discount/100;
-    document.getElementById("price").innerText="$"+t.toLocaleString("es-AR");
+  let total=0,valid=true,det=[];
+  document.querySelectorAll("#dynamic-fields select").forEach(s=>{
+      const p=+s.value;
+      if(s.id==="base"&&p===0)valid=false;
+      total+=p;
+      const n=s.options[s.selectedIndex]?.dataset.name;
+      if(n)det.push(n);
+  });
+  if(discount>0)total=Math.round(total*(1-discount/100));
+  document.getElementById("modal-price").innerText="$"+total.toLocaleString("es-AR");
+  document.getElementById("btnAdd").disabled=!valid;
+  currentSelection={price:total,details:det};
 }
+
+/* CARRITO */
 function addToCart(){
-    let p=document.getElementById("price").innerText.replace(/\D/g,"");
-    cart.push(Number(p));
-    document.getElementById("modal").classList.remove("active");
-    updateCart();
+  cart.push(currentSelection.price);
+  closeModal();
+  updateCart();
 }
 function updateCart(){
-    const t=cart.reduce((a,b)=>a+b,0);
-    document.getElementById("cart").classList.add("show");
-    document.getElementById("cartTotal").innerText="$"+t.toLocaleString("es-AR");
+  const t=cart.reduce((a,b)=>a+b,0);
+  document.getElementById("cart").classList.add("show");
+  document.getElementById("cartTotal").innerText="$"+t.toLocaleString("es-AR");
 }
 function checkout(){
-    window.open(`https://wa.me/${WA}?text=Total%20$${cart.reduce((a,b)=>a+b,0)}`);
+  window.open(`https://wa.me/${WA_NUMBER}?text=Total%20$${cart.reduce((a,b)=>a+b,0)}`);
 }
 
 /* ADMIN */
 let clicks=0;
-document.getElementById("header").onclick=()=>{
-    clicks++;
-    if(clicks===3){
-        document.getElementById("admin").style.display="flex";
-        clicks=0;
-    }
+document.getElementById("adminTrigger").onclick=()=>{
+  clicks++;
+  if(clicks===5){
+      const p=prompt("Contraseña admin:");
+      if(p===ADMIN_PASS){
+          const d=prompt("Descuento %",discount);
+          discount=Number(d||0);
+          localStorage.setItem("discount",discount);
+          alert("Descuento aplicado");
+      }
+      clicks=0;
+  }
 };
-function loginAdmin(){
-    if(document.getElementById("adminPass").value!==ADMIN_PASS)return alert("Error");
-    discount=Number(document.getElementById("discount").value||0);
-    localStorage.setItem("discount",discount);
-    alert("Descuento aplicado");
-    document.getElementById("admin").style.display="none";
-}
 </script>
 
 </body>
