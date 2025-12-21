@@ -61,22 +61,24 @@
         /* CHECKBOXES & CANTIDAD */
         .checkbox-list { display: flex; flex-direction: column; gap: 10px; }
         .checkbox-item-wrapper { display: flex; flex-direction: column; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee; overflow: hidden; }
-        .checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; }
-        .checkbox-item label { flex-grow: 1; margin-left: 10px; font-size: 0.95rem; }
+        .checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; }
+        .checkbox-item label { flex-grow: 1; margin-left: 10px; font-size: 0.95rem; cursor: pointer; }
         .checkbox-price { font-weight: 600; color: var(--primary-blue); font-size: 0.9rem; }
         input[type="checkbox"] { transform: scale(1.3); accent-color: var(--primary-blue); }
         
-        /* Input de cantidad oculto por defecto */
+        /* Input de cantidad */
         .qty-input-wrapper { display: none; padding: 10px 12px; background: #eee; border-top: 1px solid #e0e0e0; align-items: center; justify-content: space-between; animation: fadeIn 0.3s; }
         .qty-input-wrapper.show { display: flex; }
         .qty-input { width: 80px; padding: 8px; border-radius: 8px; border: 1px solid #ccc; text-align: center; font-size: 1rem; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .current-price { font-size: 1.8rem; font-weight: 800; color: var(--primary-blue); text-align: center; margin: 25px 0; }
+        /* MENSAJE DE VALIDACIÓN */
+        #validation-msg { color: var(--danger-red); font-size: 0.9rem; text-align: center; margin-bottom: 10px; font-weight: 600; min-height: 20px;}
+
+        .current-price { font-size: 1.8rem; font-weight: 800; color: var(--primary-blue); text-align: center; margin: 10px 0 25px 0; }
         
-        .btn-add { width: 100%; background-color: var(--primary-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; opacity: 1; transition: opacity 0.3s; }
-        .btn-add:disabled { background-color: #999; opacity: 0.7; cursor: not-allowed; }
+        .btn-add { width: 100%; background-color: var(--primary-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; opacity: 1; transition: all 0.3s; }
+        .btn-add:disabled { background-color: #e0e0e0; color: #999; opacity: 1; cursor: not-allowed; }
 
         /* BARRA FLOTANTE */
         .cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 550px; background: rgba(255,255,255,0.98); padding: 15px 20px; border-radius: 100px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; z-index: 150; border: 1px solid rgba(0,0,0,0.05); transition: bottom 0.3s; cursor: pointer; }
@@ -85,7 +87,7 @@
         .cart-count { font-size: 0.8rem; color: #666; display: block;}
         .btn-view-cart { background-color: var(--primary-blue); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; border: none; }
 
-        /* MODAL CARRITO */
+        /* CARRITO MODAL */
         .cart-item { background: #f4f4f4; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; }
         .cart-item-title { font-weight: 700; color: var(--primary-blue); margin-bottom: 5px; font-size: 1.1rem; }
         .cart-item-details { font-size: 0.9rem; color: #555; margin-bottom: 8px; line-height: 1.4; }
@@ -137,6 +139,7 @@
                 <div id="dynamic-fields"></div>
             </form>
 
+            <div id="validation-msg"></div>
             <div class="current-price" id="modal-price">$0</div>
             <button class="btn-add" id="btn-add-cart" onclick="addToCart()" disabled>Seleccionar opciones...</button>
         </div>
@@ -147,8 +150,7 @@
             <button class="close-modal" onclick="closeCartModal()">×</button>
             <h2 style="margin-top:0; color:var(--primary-blue); font-family:var(--font-brand);">Tu Pedido</h2>
             
-            <div id="cart-items-container" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;">
-                </div>
+            <div id="cart-items-container" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;"></div>
 
             <div style="border-top: 2px solid #eee; padding-top: 15px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom: 15px;">
@@ -171,27 +173,18 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?gid=885679872&single=true&output=csv";
         const WA_NUMBER = "5491153196358";
 
-        // --- ESTADO ---
         let CATALOG = { profesores: [], maestros: [], temas: [], digital: [], libreria: [], adicionales: [] };
         let cart = [];
         let currentProductType = '';
 
-        // --- INICIALIZACIÓN ---
         window.onload = function() {
             fetch(CSV_URL)
                 .then(res => res.text())
-                .then(csv => {
-                    parseData(csv);
-                    document.getElementById('loading-screen').style.display = 'none';
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error de conexión. Recarga la página.");
-                });
+                .then(csv => { parseData(csv); document.getElementById('loading-screen').style.display = 'none'; })
+                .catch(err => { console.error(err); alert("Error de conexión. Recarga la página."); });
         };
 
         function parseData(csv) {
@@ -207,36 +200,26 @@
             });
         }
 
-        // --- FUNCIONES VISUALES (MODALES) ---
+        // --- FUNCIONES VISUALES ---
         function openConfigModal(type) {
             currentProductType = type;
             renderConfigForm(type);
-            updateTotal(); // Valida inicialmente
+            updateTotal(); 
             document.getElementById('config-modal').classList.add('active');
         }
 
-        function closeConfigModal() {
-            document.getElementById('config-modal').classList.remove('active');
-        }
+        function closeConfigModal() { document.getElementById('config-modal').classList.remove('active'); }
+        function openCartModal() { renderCartItems(); document.getElementById('cart-modal-view').classList.add('active'); }
+        function closeCartModal() { document.getElementById('cart-modal-view').classList.remove('active'); }
 
-        function openCartModal() {
-            renderCartItems();
-            document.getElementById('cart-modal-view').classList.add('active');
-        }
-
-        function closeCartModal() {
-            document.getElementById('cart-modal-view').classList.remove('active');
-        }
-
-        // --- RENDERIZADO DEL FORMULARIO ---
+        // --- FORMULARIO ---
         function renderConfigForm(type) {
             const container = document.getElementById('dynamic-fields');
             container.innerHTML = '';
             document.getElementById('modal-title').innerText = type === 'profesores' ? 'Profesores' : type === 'maestros' ? 'Maestrxs' : 'Digital';
-
             let html = '';
 
-            // 1. SELECTORES OBLIGATORIOS (Base, Tema, Digital)
+            // OBLIGATORIOS (Selects)
             if (type === 'profesores') html += createSelect("1. Cantidad de Cursos", "base", CATALOG.profesores);
             else if (type === 'maestros') html += createSelect("1. Cantidad de Grados", "base", CATALOG.maestros);
             else if (type === 'digital') html += createSelect("1. Formato Digital", "base", CATALOG.digital);
@@ -244,116 +227,133 @@
             if (type !== 'digital') {
                 html += createSelect("2. Diseño / Tema", "tema", CATALOG.temas);
                 
-                // Opción digital (Agregamos "No agregar" explícitamente)
                 let digitalOpts = [{name: "No agregar versión digital", price: 0}, ...CATALOG.digital];
                 html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts, "No agregar versión digital");
 
-                // Checkboxes
-                if(CATALOG.libreria.length > 0) html += createCheckboxSection("4. Opcionales de Librería", "lib", CATALOG.libreria);
-                if(CATALOG.adicionales.length > 0) html += createCheckboxSection("5. Adicionales", "add", CATALOG.adicionales);
-            }
+                // CHECKBOXES (SECCIÓN 4 y 5)
+                // INYECTAMOS "NINGUNO" automáticamente para cumplir la regla de "elegir uno sí o sí"
+                const noneOption = { name: "Ninguno", price: 0 };
 
+                let libItems = [noneOption, ...CATALOG.libreria];
+                if(CATALOG.libreria.length > 0) html += createCheckboxSection("4. Opcionales de Librería", "lib", libItems);
+
+                let addItems = [noneOption, ...CATALOG.adicionales];
+                if(CATALOG.adicionales.length > 0) html += createCheckboxSection("5. Adicionales", "add", addItems);
+            }
             container.innerHTML = html;
         }
 
         function createSelect(label, id, items, defaultText = "Seleccionar...") {
             let optionsHtml = `<option value="" data-price="0" selected disabled>${defaultText}</option>`;
-            
-            // Si es digital_addon, el "No agregar" es una opción válida (valor 0), no un placeholder.
-            if(id === 'digital_addon') {
-                optionsHtml = ''; // Reseteamos para construir opciones válidas desde items
-            }
-
-            optionsHtml += items.map(item => 
-                `<option value="${item.name}" data-price="${item.price}">${item.name} ${item.price > 0 ? '($'+item.price+')' : ''}</option>`
-            ).join('');
-
-            return `
-                <div class="form-group">
-                    <div class="section-title">${label} <span style="color:red">*</span></div>
-                    <div class="select-wrapper">
-                        <select id="input-${id}" onchange="updateTotal()">
-                            ${optionsHtml}
-                        </select>
-                    </div>
-                </div>`;
+            if(id === 'digital_addon') optionsHtml = ''; 
+            optionsHtml += items.map(item => `<option value="${item.name}" data-price="${item.price}">${item.name} ${item.price > 0 ? '($'+item.price+')' : ''}</option>`).join('');
+            return `<div class="form-group"><div class="section-title">${label} <span style="color:red">*</span></div><div class="select-wrapper"><select id="input-${id}" onchange="updateTotal()">${optionsHtml}</select></div></div>`;
         }
 
         function createCheckboxSection(label, group, items) {
             let boxes = items.map((item, i) => {
-                // Detectar si es "hojas" para mostrar input de cantidad
                 const isHojas = item.name.toLowerCase().includes('hojas');
-                const qtyHtml = isHojas ? `
-                    <div class="qty-input-wrapper" id="qty-wrapper-${group}-${i}">
-                        <label>¿Cuántas hojas?</label>
-                        <input type="number" class="qty-input" id="qty-${group}-${i}" value="10" min="1" onchange="updateTotal()">
-                    </div>
-                ` : '';
-                const onChangeFn = isHojas ? `toggleQty('${group}-${i}'); updateTotal()` : `updateTotal()`;
+                const isNinguno = item.name === "Ninguno";
+                
+                // Lógica especial para "Ninguno" (desmarca otros) y para items normales (desmarca "Ninguno")
+                let onClickLogic = isNinguno ? `handleNinguno('${group}', this)` : `handleRegularItem('${group}', this)`;
+                if(isHojas) onClickLogic += `; toggleQty('${group}-${i}')`;
+                onClickLogic += `; updateTotal()`;
+
+                const qtyHtml = isHojas ? `<div class="qty-input-wrapper" id="qty-wrapper-${group}-${i}"><label>¿Cuántas hojas?</label><input type="number" class="qty-input" id="qty-${group}-${i}" value="10" min="1" onchange="updateTotal()"></div>` : '';
 
                 return `
                 <div class="checkbox-item-wrapper">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="${group}-${i}" data-price="${item.price}" data-name="${item.name}" onchange="${onChangeFn}">
+                    <div class="checkbox-item" onclick="document.getElementById('${group}-${i}').click()">
+                        <input type="checkbox" id="${group}-${i}" data-price="${item.price}" data-name="${item.name}" onclick="event.stopPropagation(); ${onClickLogic}">
                         <label for="${group}-${i}">${item.name}</label>
-                        <span class="checkbox-price">$${item.price}</span>
+                        <span class="checkbox-price">${item.price > 0 ? '$'+item.price : ''}</span>
                     </div>
                     ${qtyHtml}
                 </div>`;
             }).join('');
+            return `<div class="form-group" id="group-${group}"><div class="section-title">${label} <span style="color:red">*</span></div><div class="checkbox-list">${boxes}</div></div>`;
+        }
 
-            return `<div class="form-group"><div class="section-title">${label}</div><div class="checkbox-list">${boxes}</div></div>`;
+        // --- LÓGICA DE CHECKBOXES EXCLUSIVOS ---
+        function handleNinguno(group, checkbox) {
+            if(checkbox.checked) {
+                // Desmarcar todos los demás del grupo
+                const allInGroup = document.querySelectorAll(`#group-${group} input[type="checkbox"]`);
+                allInGroup.forEach(box => {
+                    if(box !== checkbox) {
+                        box.checked = false;
+                        // Ocultar inputs de cantidad si los hubiera
+                        const qtyWrapper = document.getElementById(`qty-wrapper-${box.id}`);
+                        if(qtyWrapper) qtyWrapper.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        function handleRegularItem(group, checkbox) {
+            if(checkbox.checked) {
+                // Desmarcar "Ninguno" del grupo (asumimos que es el índice 0)
+                const ningunoBox = document.getElementById(`${group}-0`);
+                if(ningunoBox && ningunoBox.dataset.name === "Ninguno") {
+                    ningunoBox.checked = false;
+                }
+            }
         }
 
         function toggleQty(id) {
             const checkbox = document.getElementById(id);
             const wrapper = document.getElementById(`qty-wrapper-${id}`);
-            if(checkbox.checked) wrapper.classList.add('show');
-            else wrapper.classList.remove('show');
+            if(wrapper) {
+                if(checkbox.checked) wrapper.classList.add('show');
+                else wrapper.classList.remove('show');
+            }
         }
 
         // --- CÁLCULO Y VALIDACIÓN ---
         function updateTotal() {
             let total = 0;
-            let missingSelection = false;
+            let errors = [];
             const btn = document.getElementById('btn-add-cart');
 
             // 1. Validar Selects
-            const selects = document.querySelectorAll('select');
-            selects.forEach(sel => {
-                const price = parseInt(sel.options[sel.selectedIndex]?.dataset.price || 0);
-                total += price;
-                
-                // Si el valor es vacío (placeholder), falta seleccionar
-                // EXCEPCIÓN: digital_addon puede tener valor 0 si es "No agregar", pero no debe ser vacío ""
-                if (sel.value === "") missingSelection = true;
+            document.querySelectorAll('select').forEach(sel => {
+                total += parseInt(sel.options[sel.selectedIndex]?.dataset.price || 0);
+                if (sel.value === "") errors.push("Falta seleccionar opción base");
             });
 
-            // 2. Sumar Checkboxes
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            checkboxes.forEach(chk => {
+            // 2. Validar Checkboxes (Solo si existen en el form actual)
+            // Sección Libreria (lib)
+            if(document.getElementById('group-lib')) {
+                const checkedLib = document.querySelectorAll('#group-lib input:checked').length;
+                if(checkedLib === 0) errors.push("Elige una opción de librería (o Ninguno)");
+            }
+            // Sección Adicionales (add)
+            if(document.getElementById('group-add')) {
+                const checkedAdd = document.querySelectorAll('#group-add input:checked').length;
+                if(checkedAdd === 0) errors.push("Elige un adicional (o Ninguno)");
+            }
+
+            // 3. Sumar Precios Checkboxes
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(chk => {
                 let itemPrice = parseInt(chk.dataset.price);
-                
-                // Si tiene input de cantidad asociado y está visible
                 const qtyInput = document.getElementById(`qty-${chk.id}`);
-                if (qtyInput && chk.checked) {
-                    const qty = parseInt(qtyInput.value) || 0;
-                    itemPrice = itemPrice * qty; // Precio unitario * cantidad
-                }
-                
+                if (qtyInput && chk.checked) itemPrice = itemPrice * (parseInt(qtyInput.value) || 0);
                 total += itemPrice;
             });
 
             document.getElementById('modal-price').innerText = `$${total.toLocaleString('es-AR')}`;
-            
-            if (missingSelection) {
+            const msgBox = document.getElementById('validation-msg');
+
+            if (errors.length > 0) {
                 btn.disabled = true;
-                btn.innerText = "Falta seleccionar opciones...";
-                btn.style.backgroundColor = "#ccc";
+                btn.innerText = "Faltan opciones...";
+                // Mostrar solo el primer error o uno genérico
+                msgBox.innerText = "⚠️ " + errors[0];
             } else {
                 btn.disabled = false;
                 btn.innerText = "Agregar al Pedido";
-                btn.style.backgroundColor = "var(--primary-blue)";
+                msgBox.innerText = "";
             }
         }
 
@@ -361,7 +361,7 @@
             let details = [];
             let total = 0;
 
-            // Recolectar Selects
+            // Selects
             document.querySelectorAll('select').forEach(sel => {
                 const name = sel.value;
                 const price = parseInt(sel.options[sel.selectedIndex].dataset.price);
@@ -371,32 +371,30 @@
                 }
             });
 
-            // Recolectar Checkboxes
+            // Checkboxes
             document.querySelectorAll('input[type="checkbox"]:checked').forEach(chk => {
                 const name = chk.dataset.name;
-                let price = parseInt(chk.dataset.price);
-                
-                // Verificar cantidad especial
-                const qtyInput = document.getElementById(`qty-${chk.id}`);
-                if (qtyInput) {
-                    const qty = parseInt(qtyInput.value);
-                    const subtotal = price * qty;
-                    details.push(`${name} (x${qty}) ($${subtotal})`);
-                    total += subtotal;
-                } else {
-                    details.push(`${name} ($${price})`);
-                    total += price;
+                if(name !== "Ninguno") { // No mostramos "Ninguno" en el carrito
+                    let price = parseInt(chk.dataset.price);
+                    const qtyInput = document.getElementById(`qty-${chk.id}`);
+                    if (qtyInput) {
+                        const qty = parseInt(qtyInput.value);
+                        const subtotal = price * qty;
+                        details.push(`${name} (x${qty}) ($${subtotal})`);
+                        total += subtotal;
+                    } else {
+                        details.push(`${name} ($${price})`);
+                        total += price;
+                    }
                 }
             });
 
             let title = currentProductType === 'profesores' ? 'Calificador Profesores' : currentProductType === 'maestros' ? 'Calificador Maestrxs' : 'Calificador Digital';
-
             cart.push({ title, details, total });
             closeConfigModal();
             updateCartBar();
         }
 
-        // --- GESTIÓN DEL CARRITO ---
         function updateCartBar() {
             if (cart.length > 0) {
                 document.getElementById('cart-float').classList.remove('hidden');
@@ -412,60 +410,41 @@
             const container = document.getElementById('cart-items-container');
             container.innerHTML = '';
             let grandTotal = 0;
-
             if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">El carrito está vacío.</p>';
+                container.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">Carrito vacío.</p>';
                 document.getElementById('cart-final-total').innerText = '$0';
                 return;
             }
-
             cart.forEach((item, index) => {
                 grandTotal += item.total;
                 let detailsHtml = item.details.map(d => `<div>• ${d}</div>`).join('');
-                
-                let itemHtml = `
-                    <div class="cart-item">
-                        <div class="cart-item-title">${item.title}</div>
-                        <button class="btn-remove" onclick="removeFromCart(${index})">×</button>
-                        <div class="cart-item-details">${detailsHtml}</div>
-                        <div class="cart-item-price">$${item.total.toLocaleString('es-AR')}</div>
-                    </div>
-                `;
-                container.innerHTML += itemHtml;
+                container.innerHTML += `<div class="cart-item"><div class="cart-item-title">${item.title}</div><button class="btn-remove" onclick="removeFromCart(${index})">×</button><div class="cart-item-details">${detailsHtml}</div><div class="cart-item-price">$${item.total.toLocaleString('es-AR')}</div></div>`;
             });
-
             document.getElementById('cart-final-total').innerText = `$${grandTotal.toLocaleString('es-AR')}`;
         }
 
         function removeFromCart(index) {
-            cart.splice(index, 1); // Eliminar ítem
-            renderCartItems(); // Re-renderizar modal
-            updateCartBar(); // Actualizar barra flotante
-            
-            // Si vaciamos el carrito, cerramos el modal
+            cart.splice(index, 1);
+            renderCartItems();
+            updateCartBar();
             if(cart.length === 0) closeCartModal();
         }
 
         function sendToWhatsApp() {
             if (cart.length === 0) return;
-            
             let text = "Hola Docentes Brown! 🍎\nQuiero realizar el siguiente pedido:\n\n";
             let grandTotal = 0;
-
             cart.forEach((item, i) => {
                 text += `*${i+1}. ${item.title}*\n`;
                 item.details.forEach(d => text += `   ${d}\n`);
                 text += `   Subtotal: $${item.total}\n\n`;
                 grandTotal += item.total;
             });
-
             text += `*TOTAL FINAL: $${grandTotal.toLocaleString('es-AR')}*`;
             text += "\n\nQuedo a la espera para coordinar el pago. Gracias!";
-            
             window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // Clic fuera para cerrar
         window.onclick = function(event) {
             if (event.target == document.getElementById('config-modal')) closeConfigModal();
             if (event.target == document.getElementById('cart-modal-view')) closeCartModal();
