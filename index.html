@@ -15,6 +15,7 @@
             --text-main: #000000;
             --text-secondary: #666666;
             --accent-green: #34C759;
+            --danger-red: #FF3B30;
             --radius-card: 20px;
             --font-brand: 'League Spartan', sans-serif;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -35,46 +36,64 @@
 
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-        /* TARJETAS FIJAS */
+        /* TARJETAS */
         .product-card { background: var(--card-bg); border-radius: var(--radius-card); padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.2s; cursor: pointer; position: relative; overflow: hidden; }
         .product-card:active { transform: scale(0.98); }
         .product-title { font-family: var(--font-brand); font-size: 1.4rem; color: var(--primary-blue); margin-bottom: 10px; font-weight: 800; }
         .product-desc { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.4; }
         .price-tag { font-weight: 600; color: var(--primary-blue); font-size: 1.1rem; }
 
-        /* MODAL */
+        /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 600px; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #999; cursor: pointer; border: none; background: none; font-weight: bold; }
+        .close-modal { align-self: flex-end; font-size: 28px; color: #999; cursor: pointer; border: none; background: none; font-weight: bold; padding: 0 10px; }
 
         /* FORMULARIOS */
         .section-title { font-size: 1rem; font-weight: 700; color: var(--primary-blue); margin: 20px 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .form-group { margin-bottom: 15px; }
         
-        /* Select Style */
-        select { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background-color: #F9F9F9; appearance: none; -webkit-appearance: none; color: #333; }
+        select { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background-color: #F9F9F9; appearance: none; -webkit-appearance: none; color: #333; outline: none; }
+        select:focus { border-color: var(--primary-blue); }
         .select-wrapper { position: relative; }
         .select-wrapper::after { content: '▼'; font-size: 12px; color: #999; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 
-        /* Checkbox List Style */
+        /* CHECKBOXES & CANTIDAD */
         .checkbox-list { display: flex; flex-direction: column; gap: 10px; }
-        .checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee; }
+        .checkbox-item-wrapper { display: flex; flex-direction: column; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee; overflow: hidden; }
+        .checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; }
         .checkbox-item label { flex-grow: 1; margin-left: 10px; font-size: 0.95rem; }
         .checkbox-price { font-weight: 600; color: var(--primary-blue); font-size: 0.9rem; }
         input[type="checkbox"] { transform: scale(1.3); accent-color: var(--primary-blue); }
+        
+        /* Input de cantidad oculto por defecto */
+        .qty-input-wrapper { display: none; padding: 10px 12px; background: #eee; border-top: 1px solid #e0e0e0; align-items: center; justify-content: space-between; animation: fadeIn 0.3s; }
+        .qty-input-wrapper.show { display: flex; }
+        .qty-input { width: 80px; padding: 8px; border-radius: 8px; border: 1px solid #ccc; text-align: center; font-size: 1rem; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .current-price { font-size: 1.8rem; font-weight: 800; color: var(--primary-blue); text-align: center; margin: 25px 0; }
-        .btn-add { width: 100%; background-color: var(--primary-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
-        .btn-add:disabled { background-color: #ccc; cursor: not-allowed; }
+        
+        .btn-add { width: 100%; background-color: var(--primary-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; opacity: 1; transition: opacity 0.3s; }
+        .btn-add:disabled { background-color: #999; opacity: 0.7; cursor: not-allowed; }
 
-        /* CARRITO */
-        .cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 550px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-radius: 100px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; z-index: 150; border: 1px solid rgba(0,0,0,0.05); transition: bottom 0.3s; }
+        /* BARRA FLOTANTE */
+        .cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 550px; background: rgba(255,255,255,0.98); padding: 15px 20px; border-radius: 100px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; z-index: 150; border: 1px solid rgba(0,0,0,0.05); transition: bottom 0.3s; cursor: pointer; }
         .cart-float.hidden { bottom: -150px; }
         .cart-total { font-weight: 800; color: var(--primary-blue); font-size: 1.1rem; display: block; }
         .cart-count { font-size: 0.8rem; color: #666; display: block;}
-        .btn-whatsapp { background-color: #25D366; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+        .btn-view-cart { background-color: var(--primary-blue); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; border: none; }
+
+        /* MODAL CARRITO */
+        .cart-item { background: #f4f4f4; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .cart-item-title { font-weight: 700; color: var(--primary-blue); margin-bottom: 5px; font-size: 1.1rem; }
+        .cart-item-details { font-size: 0.9rem; color: #555; margin-bottom: 8px; line-height: 1.4; }
+        .cart-item-price { font-weight: 800; font-size: 1rem; text-align: right; }
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--danger-red); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+        
+        .btn-whatsapp { width: 100%; background-color: #25D366; color: white; padding: 16px; border-radius: 14px; text-decoration: none; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 1.1rem; margin-top: 10px; border: none; cursor: pointer; }
+
     </style>
 </head>
 <body>
@@ -90,43 +109,65 @@
     </header>
 
     <div class="container">
-        <div class="product-card" onclick="openModal('profesores')">
+        <div class="product-card" onclick="openConfigModal('profesores')">
             <div class="product-title">Calificador Profesores</div>
             <div class="product-desc">Gestiona múltiples cursos. Personalización completa.</div>
-            <span class="price-tag">Configurar ➔</span>
+            <span class="price-tag">Personalizar ➔</span>
         </div>
 
-        <div class="product-card" onclick="openModal('maestros')">
+        <div class="product-card" onclick="openConfigModal('maestros')">
             <div class="product-title">Calificador Maestrxs</div>
             <div class="product-desc">Para grados y secciones. Personalización completa.</div>
-            <span class="price-tag">Configurar ➔</span>
+            <span class="price-tag">Personalizar ➔</span>
         </div>
 
-        <div class="product-card" onclick="openModal('digital')">
+        <div class="product-card" onclick="openConfigModal('digital')">
             <div class="product-title">Calificador Digital</div>
             <div class="product-desc">Versión Excel o App Móvil (Sin cuaderno físico).</div>
-            <span class="price-tag">Ver Opciones ➔</span>
+            <span class="price-tag">Personalizar ➔</span>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal">
+    <div class="modal-overlay" id="config-modal">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">×</button>
-            <h2 id="modal-title" style="margin-top:0; color:var(--primary-blue); font-family:var(--font-brand);">Configurar</h2>
-            <form id="config-form">
+            <button class="close-modal" onclick="closeConfigModal()">×</button>
+            <h2 id="modal-title" style="margin-top:0; color:var(--primary-blue); font-family:var(--font-brand);">Personalizar</h2>
+            
+            <form id="config-form" onsubmit="return false;">
                 <div id="dynamic-fields"></div>
             </form>
+
             <div class="current-price" id="modal-price">$0</div>
-            <button class="btn-add" id="btn-add-cart" onclick="addToCart()" disabled>Agregar al Pedido</button>
+            <button class="btn-add" id="btn-add-cart" onclick="addToCart()" disabled>Seleccionar opciones...</button>
         </div>
     </div>
 
-    <div class="cart-float hidden" id="cart-float">
+    <div class="modal-overlay" id="cart-modal-view">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeCartModal()">×</button>
+            <h2 style="margin-top:0; color:var(--primary-blue); font-family:var(--font-brand);">Tu Pedido</h2>
+            
+            <div id="cart-items-container" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;">
+                </div>
+
+            <div style="border-top: 2px solid #eee; padding-top: 15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 15px;">
+                    <span style="font-weight:bold; font-size:1.2rem;">Total Final:</span>
+                    <span id="cart-final-total" style="font-weight:800; font-size:1.2rem; color:var(--primary-blue);">$0</span>
+                </div>
+                <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+                    Confirmar por WhatsApp <span>➤</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-float hidden" id="cart-float" onclick="openCartModal()">
         <div class="cart-info">
             <span class="cart-count" id="cart-count">0 ítems</span>
             <span class="cart-total" id="cart-total">Total: $0</span>
         </div>
-        <a href="#" class="btn-whatsapp" onclick="checkout()">Enviar <span>➤</span></a>
+        <button class="btn-view-cart">Ver Pedido</button>
     </div>
 
     <script>
@@ -134,16 +175,8 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?gid=885679872&single=true&output=csv";
         const WA_NUMBER = "5491153196358";
 
-        // Almacenamiento de datos
-        let CATALOG = {
-            profesores: [], // Col A y B
-            maestros: [],   // Col C y D
-            temas: [],      // Col E (Precio siempre 0)
-            digital: [],    // Col G y H
-            libreria: [],   // Col I y J
-            adicionales: [] // Col K y L
-        };
-
+        // --- ESTADO ---
+        let CATALOG = { profesores: [], maestros: [], temas: [], digital: [], libreria: [], adicionales: [] };
         let cart = [];
         let currentProductType = '';
 
@@ -157,198 +190,214 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Error cargando precios. Intente recargar.");
+                    alert("Error de conexión. Recarga la página.");
                 });
         };
 
         function parseData(csv) {
-            const rows = csv.split('\n').slice(1); // Saltar cabecera
-            
+            const rows = csv.split('\n').slice(1);
             rows.forEach(row => {
-                // Parse CSV respetando comas dentro de comillas (si las hubiera) o split simple
-                // Asumimos split simple por el formato de google sheets
                 const cols = row.split(',').map(c => c.trim());
-                
-                // Mapeo de columnas (Indices basados en A=0, B=1, etc)
-                
-                // Profesores: A(0), B(1)
-                if(cols[0] && cols[0] !== "") CATALOG.profesores.push({ name: cols[0], price: parseInt(cols[1]) || 0 });
-                
-                // Maestros: C(2), D(3)
-                if(cols[2] && cols[2] !== "") CATALOG.maestros.push({ name: cols[2], price: parseInt(cols[3]) || 0 });
-                
-                // Temas: E(4) - Precio es 0
-                if(cols[4] && cols[4] !== "") CATALOG.temas.push({ name: cols[4], price: 0 });
-                
-                // Digital: G(6), H(7)
-                if(cols[6] && cols[6] !== "") CATALOG.digital.push({ name: cols[6], price: parseInt(cols[7]) || 0 });
-                
-                // Libreria: I(8), J(9)
-                if(cols[8] && cols[8] !== "") CATALOG.libreria.push({ name: cols[8], price: parseInt(cols[9]) || 0 });
-                
-                // Adicionales: K(10), L(11)
-                if(cols[10] && cols[10] !== "") CATALOG.adicionales.push({ name: cols[10], price: parseInt(cols[11]) || 0 });
+                if(cols[0]) CATALOG.profesores.push({ name: cols[0], price: parseInt(cols[1]) || 0 });
+                if(cols[2]) CATALOG.maestros.push({ name: cols[2], price: parseInt(cols[3]) || 0 });
+                if(cols[4]) CATALOG.temas.push({ name: cols[4], price: 0 });
+                if(cols[6]) CATALOG.digital.push({ name: cols[6], price: parseInt(cols[7]) || 0 });
+                if(cols[8]) CATALOG.libreria.push({ name: cols[8], price: parseInt(cols[9]) || 0 });
+                if(cols[10]) CATALOG.adicionales.push({ name: cols[10], price: parseInt(cols[11]) || 0 });
             });
         }
 
-        // --- LÓGICA MODAL ---
-        function openModal(type) {
+        // --- FUNCIONES VISUALES (MODALES) ---
+        function openConfigModal(type) {
             currentProductType = type;
+            renderConfigForm(type);
+            updateTotal(); // Valida inicialmente
+            document.getElementById('config-modal').classList.add('active');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('config-modal').classList.remove('active');
+        }
+
+        function openCartModal() {
+            renderCartItems();
+            document.getElementById('cart-modal-view').classList.add('active');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cart-modal-view').classList.remove('active');
+        }
+
+        // --- RENDERIZADO DEL FORMULARIO ---
+        function renderConfigForm(type) {
             const container = document.getElementById('dynamic-fields');
-            container.innerHTML = ''; // Limpiar
-            
-            document.getElementById('modal-title').innerText = 
-                type === 'profesores' ? 'Profesores' : 
-                type === 'maestros' ? 'Maestrxs' : 'Digital';
+            container.innerHTML = '';
+            document.getElementById('modal-title').innerText = type === 'profesores' ? 'Profesores' : type === 'maestros' ? 'Maestrxs' : 'Digital';
 
             let html = '';
 
-            // 1. BASE (Select - Obligatorio)
-            if (type === 'profesores') {
-                html += createSelect("1. Cantidad de Cursos", "base", CATALOG.profesores);
-            } else if (type === 'maestros') {
-                html += createSelect("1. Cantidad de Grados", "base", CATALOG.maestros);
-            } else if (type === 'digital') {
-                html += createSelect("1. Formato Digital", "base", CATALOG.digital);
-            }
+            // 1. SELECTORES OBLIGATORIOS (Base, Tema, Digital)
+            if (type === 'profesores') html += createSelect("1. Cantidad de Cursos", "base", CATALOG.profesores);
+            else if (type === 'maestros') html += createSelect("1. Cantidad de Grados", "base", CATALOG.maestros);
+            else if (type === 'digital') html += createSelect("1. Formato Digital", "base", CATALOG.digital);
 
-            // Si es producto físico, mostramos el resto de opciones
             if (type !== 'digital') {
-                // 2. TEMAS (Select - Obligatorio - Precio 0)
                 html += createSelect("2. Diseño / Tema", "tema", CATALOG.temas);
-
-                // 3. DIGITAL ADICIONAL (Select - Opcional/Uno)
-                // Agregamos opcion "Ninguno" manual al principio
+                
+                // Opción digital (Agregamos "No agregar" explícitamente)
                 let digitalOpts = [{name: "No agregar versión digital", price: 0}, ...CATALOG.digital];
-                html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts);
+                html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts, "No agregar versión digital");
 
-                // 4. LIBRERIA (Checkbox - Múltiple)
-                if(CATALOG.libreria.length > 0) {
-                    html += createCheckboxSection("4. Opcionales de Librería", "lib", CATALOG.libreria);
-                }
-
-                // 5. ADICIONALES (Checkbox - Múltiple)
-                if(CATALOG.adicionales.length > 0) {
-                    html += createCheckboxSection("5. Adicionales", "add", CATALOG.adicionales);
-                }
+                // Checkboxes
+                if(CATALOG.libreria.length > 0) html += createCheckboxSection("4. Opcionales de Librería", "lib", CATALOG.libreria);
+                if(CATALOG.adicionales.length > 0) html += createCheckboxSection("5. Adicionales", "add", CATALOG.adicionales);
             }
 
             container.innerHTML = html;
-            updateTotal(); // Calcular precio inicial
-            document.getElementById('modal').classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
-
-        // Generadores de HTML
-        function createSelect(label, id, items) {
-            let options = `<option value="0" data-name="">Seleccionar...</option>`;
-            // Si es "digital_addon" o tema, quizás queramos que el primero sea seleccionable por defecto si es "Ninguno"
-            if (id === 'digital_addon') {
-                 options = items.map((item, i) => `<option value="${item.price}" data-name="${item.name}">${item.name} ${item.price > 0 ? '(+$'+item.price+')' : ''}</option>`).join('');
-            } else {
-                 options += items.map(item => `<option value="${item.price}" data-name="${item.name}">${item.name} ${item.price > 0 ? '($'+item.price+')' : ''}</option>`).join('');
+        function createSelect(label, id, items, defaultText = "Seleccionar...") {
+            let optionsHtml = `<option value="" data-price="0" selected disabled>${defaultText}</option>`;
+            
+            // Si es digital_addon, el "No agregar" es una opción válida (valor 0), no un placeholder.
+            if(id === 'digital_addon') {
+                optionsHtml = ''; // Reseteamos para construir opciones válidas desde items
             }
+
+            optionsHtml += items.map(item => 
+                `<option value="${item.name}" data-price="${item.price}">${item.name} ${item.price > 0 ? '($'+item.price+')' : ''}</option>`
+            ).join('');
 
             return `
                 <div class="form-group">
-                    <div class="section-title">${label}</div>
+                    <div class="section-title">${label} <span style="color:red">*</span></div>
                     <div class="select-wrapper">
                         <select id="input-${id}" onchange="updateTotal()">
-                            ${options}
+                            ${optionsHtml}
                         </select>
                     </div>
                 </div>`;
         }
 
         function createCheckboxSection(label, group, items) {
-            let boxes = items.map((item, i) => `
-                <div class="checkbox-item">
-                    <input type="checkbox" id="${group}-${i}" value="${item.price}" data-name="${item.name}" onchange="updateTotal()">
-                    <label for="${group}-${i}">${item.name}</label>
-                    <span class="checkbox-price">$${item.price}</span>
-                </div>
-            `).join('');
+            let boxes = items.map((item, i) => {
+                // Detectar si es "hojas" para mostrar input de cantidad
+                const isHojas = item.name.toLowerCase().includes('hojas');
+                const qtyHtml = isHojas ? `
+                    <div class="qty-input-wrapper" id="qty-wrapper-${group}-${i}">
+                        <label>¿Cuántas hojas?</label>
+                        <input type="number" class="qty-input" id="qty-${group}-${i}" value="10" min="1" onchange="updateTotal()">
+                    </div>
+                ` : '';
+                const onChangeFn = isHojas ? `toggleQty('${group}-${i}'); updateTotal()` : `updateTotal()`;
 
-            return `
-                <div class="form-group">
-                    <div class="section-title">${label} (Elige los que quieras)</div>
-                    <div class="checkbox-list">${boxes}</div>
+                return `
+                <div class="checkbox-item-wrapper">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${group}-${i}" data-price="${item.price}" data-name="${item.name}" onchange="${onChangeFn}">
+                        <label for="${group}-${i}">${item.name}</label>
+                        <span class="checkbox-price">$${item.price}</span>
+                    </div>
+                    ${qtyHtml}
                 </div>`;
+            }).join('');
+
+            return `<div class="form-group"><div class="section-title">${label}</div><div class="checkbox-list">${boxes}</div></div>`;
         }
 
-        // --- CÁLCULO ---
+        function toggleQty(id) {
+            const checkbox = document.getElementById(id);
+            const wrapper = document.getElementById(`qty-wrapper-${id}`);
+            if(checkbox.checked) wrapper.classList.add('show');
+            else wrapper.classList.remove('show');
+        }
+
+        // --- CÁLCULO Y VALIDACIÓN ---
         function updateTotal() {
             let total = 0;
-            let isValid = true; // Para validar campos obligatorios
-            
-            // 1. Validar Base
-            const baseSelect = document.getElementById('input-base');
-            if (baseSelect) {
-                if (baseSelect.value === "0" && baseSelect.options[baseSelect.selectedIndex].text === "Seleccionar...") {
-                    isValid = false;
-                } else {
-                    total += parseInt(baseSelect.value);
-                }
-            }
+            let missingSelection = false;
+            const btn = document.getElementById('btn-add-cart');
 
-            // 2. Validar Tema (Solo si existe)
-            const temaSelect = document.getElementById('input-tema');
-            if (temaSelect) {
-                // Asumimos que tema siempre vale 0, pero debe estar seleccionado
-                if (temaSelect.value === "0" && temaSelect.options[temaSelect.selectedIndex].text === "Seleccionar...") {
-                    isValid = false;
-                }
-            }
+            // 1. Validar Selects
+            const selects = document.querySelectorAll('select');
+            selects.forEach(sel => {
+                const price = parseInt(sel.options[sel.selectedIndex]?.dataset.price || 0);
+                total += price;
+                
+                // Si el valor es vacío (placeholder), falta seleccionar
+                // EXCEPCIÓN: digital_addon puede tener valor 0 si es "No agregar", pero no debe ser vacío ""
+                if (sel.value === "") missingSelection = true;
+            });
 
-            // 3. Sumar Digital Addon (Select)
-            const digSelect = document.getElementById('input-digital_addon');
-            if (digSelect) total += parseInt(digSelect.value);
-
-            // 4. Sumar Checkboxes (Libreria y Adicionales)
+            // 2. Sumar Checkboxes
             const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            checkboxes.forEach(cb => total += parseInt(cb.value));
+            checkboxes.forEach(chk => {
+                let itemPrice = parseInt(chk.dataset.price);
+                
+                // Si tiene input de cantidad asociado y está visible
+                const qtyInput = document.getElementById(`qty-${chk.id}`);
+                if (qtyInput && chk.checked) {
+                    const qty = parseInt(qtyInput.value) || 0;
+                    itemPrice = itemPrice * qty; // Precio unitario * cantidad
+                }
+                
+                total += itemPrice;
+            });
 
-            // Actualizar UI
             document.getElementById('modal-price').innerText = `$${total.toLocaleString('es-AR')}`;
-            document.getElementById('btn-add-cart').disabled = !isValid;
+            
+            if (missingSelection) {
+                btn.disabled = true;
+                btn.innerText = "Falta seleccionar opciones...";
+                btn.style.backgroundColor = "#ccc";
+            } else {
+                btn.disabled = false;
+                btn.innerText = "Agregar al Pedido";
+                btn.style.backgroundColor = "var(--primary-blue)";
+            }
         }
 
         function addToCart() {
             let details = [];
             let total = 0;
 
-            // Recolectar info de Selects
-            const selects = document.querySelectorAll('select');
-            selects.forEach(sel => {
-                const name = sel.options[sel.selectedIndex].getAttribute('data-name');
-                const price = parseInt(sel.value);
-                if (name && name !== "No agregar versión digital") {
+            // Recolectar Selects
+            document.querySelectorAll('select').forEach(sel => {
+                const name = sel.value;
+                const price = parseInt(sel.options[sel.selectedIndex].dataset.price);
+                if(name && name !== "No agregar versión digital") {
                     details.push(`${name} ($${price})`);
                     total += price;
                 }
             });
 
-            // Recolectar info de Checkboxes
-            const checks = document.querySelectorAll('input[type="checkbox"]:checked');
-            checks.forEach(chk => {
-                const name = chk.getAttribute('data-name');
-                const price = parseInt(chk.value);
-                details.push(`${name} ($${price})`);
-                total += price;
+            // Recolectar Checkboxes
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(chk => {
+                const name = chk.dataset.name;
+                let price = parseInt(chk.dataset.price);
+                
+                // Verificar cantidad especial
+                const qtyInput = document.getElementById(`qty-${chk.id}`);
+                if (qtyInput) {
+                    const qty = parseInt(qtyInput.value);
+                    const subtotal = price * qty;
+                    details.push(`${name} (x${qty}) ($${subtotal})`);
+                    total += subtotal;
+                } else {
+                    details.push(`${name} ($${price})`);
+                    total += price;
+                }
             });
 
-            let title = currentProductType === 'profesores' ? 'Calificador Profesores' : 
-                        currentProductType === 'maestros' ? 'Calificador Maestrxs' : 'Calificador Digital';
+            let title = currentProductType === 'profesores' ? 'Calificador Profesores' : currentProductType === 'maestros' ? 'Calificador Maestrxs' : 'Calificador Digital';
 
             cart.push({ title, details, total });
-            closeModal();
-            updateCartUI();
+            closeConfigModal();
+            updateCartBar();
         }
 
-        function updateCartUI() {
+        // --- GESTIÓN DEL CARRITO ---
+        function updateCartBar() {
             if (cart.length > 0) {
                 document.getElementById('cart-float').classList.remove('hidden');
                 let sum = cart.reduce((acc, item) => acc + item.total, 0);
@@ -359,28 +408,67 @@
             }
         }
 
-        function checkout() {
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+            let grandTotal = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">El carrito está vacío.</p>';
+                document.getElementById('cart-final-total').innerText = '$0';
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                grandTotal += item.total;
+                let detailsHtml = item.details.map(d => `<div>• ${d}</div>`).join('');
+                
+                let itemHtml = `
+                    <div class="cart-item">
+                        <div class="cart-item-title">${item.title}</div>
+                        <button class="btn-remove" onclick="removeFromCart(${index})">×</button>
+                        <div class="cart-item-details">${detailsHtml}</div>
+                        <div class="cart-item-price">$${item.total.toLocaleString('es-AR')}</div>
+                    </div>
+                `;
+                container.innerHTML += itemHtml;
+            });
+
+            document.getElementById('cart-final-total').innerText = `$${grandTotal.toLocaleString('es-AR')}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1); // Eliminar ítem
+            renderCartItems(); // Re-renderizar modal
+            updateCartBar(); // Actualizar barra flotante
+            
+            // Si vaciamos el carrito, cerramos el modal
+            if(cart.length === 0) closeCartModal();
+        }
+
+        function sendToWhatsApp() {
             if (cart.length === 0) return;
             
-            let text = "Hola Docentes Brown! 🍎\nQuiero pedir lo siguiente:\n\n";
+            let text = "Hola Docentes Brown! 🍎\nQuiero realizar el siguiente pedido:\n\n";
             let grandTotal = 0;
 
             cart.forEach((item, i) => {
                 text += `*${i+1}. ${item.title}*\n`;
-                item.details.forEach(d => text += `   • ${d}\n`);
+                item.details.forEach(d => text += `   ${d}\n`);
                 text += `   Subtotal: $${item.total}\n\n`;
                 grandTotal += item.total;
             });
 
             text += `*TOTAL FINAL: $${grandTotal.toLocaleString('es-AR')}*`;
+            text += "\n\nQuedo a la espera para coordinar el pago. Gracias!";
             
             window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // Cerrar al clickear fuera
+        // Clic fuera para cerrar
         window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            if (event.target == modal) closeModal();
+            if (event.target == document.getElementById('config-modal')) closeConfigModal();
+            if (event.target == document.getElementById('cart-modal-view')) closeCartModal();
         }
     </script>
 </body>
