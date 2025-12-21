@@ -1,302 +1,387 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tienda Docentes Brown</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tienda Docentes Brown</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;800&family=San+Francisco&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1A3B5C;
+            --bg-color: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --text-main: #000000;
+            --text-secondary: #666666;
+            --accent-green: #34C759;
+            --radius-card: 20px;
+            --font-brand: 'League Spartan', sans-serif;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;800&display=swap" rel="stylesheet">
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-main); padding-bottom: 120px; }
 
-<style>
-:root{
-  --primary-blue:#1A3B5C;
-  --bg-color:#F2F2F7;
-  --card-bg:#FFFFFF;
-  --text-secondary:#8E8E93;
-  --radius-card:20px;
-  --radius-btn:12px;
-  --font-brand:'League Spartan',sans-serif;
-}
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
-  background:var(--bg-color);
-  padding-bottom:110px;
-}
-header{
-  background:var(--primary-blue);
-  padding:20px;
-  text-align:center;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-header h1{
-  color:#fff;
-  margin:0;
-  font-family:var(--font-brand);
-  font-size:1.5rem;
-}
-header p{color:#ccc;margin:5px 0 0;}
-.container{padding:20px;max-width:600px;margin:auto;}
-.product-card{
-  background:#fff;
-  border-radius:var(--radius-card);
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,.05);
-  cursor:pointer;
-}
-.product-title{
-  font-family:var(--font-brand);
-  font-size:1.4rem;
-  color:var(--primary-blue);
-}
-.product-desc{color:var(--text-secondary);margin:10px 0;}
-.price-tag{font-weight:600;color:var(--primary-blue);}
+        /* LOADING */
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--primary-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* MODAL */
-.modal-overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  justify-content:flex-end;
-  z-index:20;
-}
-.modal-overlay.active{display:flex;}
-.modal-content{
-  background:#fff;
-  width:100%;
-  max-width:600px;
-  border-radius:25px 25px 0 0;
-  padding:25px;
-  max-height:90vh;
-  overflow:auto;
-}
-.close-modal{
-  position:absolute;
-  top:15px;
-  right:20px;
-  font-size:24px;
-  background:none;
-  border:none;
-  cursor:pointer;
-}
-.form-group{margin-bottom:18px;}
-.form-label{font-weight:600;font-size:.9rem;}
-select{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  background:#F9F9F9;
-}
-.current-price{
-  text-align:center;
-  font-size:1.5rem;
-  font-weight:800;
-  color:var(--primary-blue);
-  margin:20px 0;
-}
-.btn-add{
-  width:100%;
-  padding:16px;
-  border:none;
-  border-radius:14px;
-  background:var(--primary-blue);
-  color:#fff;
-  font-size:1.1rem;
-}
-.btn-add:disabled{background:#ccc;}
+        /* HEADER */
+        header { background-color: var(--primary-blue); padding: 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        header h1 { color: white; margin: 0; font-family: var(--font-brand); text-transform: uppercase; letter-spacing: 1px; font-size: 1.5rem; }
+        header p { color: #ccc; margin: 5px 0 0 0; font-size: 0.9rem; }
 
-/* CARRITO */
-.cart-float{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:550px;
-  background:#fff;
-  border-radius:100px;
-  padding:15px 20px;
-  box-shadow:0 5px 20px rgba(0,0,0,.15);
-  display:none;
-  justify-content:space-between;
-  align-items:center;
-}
-.cart-float.show{display:flex;}
-.cart-total{font-weight:800;color:var(--primary-blue);}
-.btn-whatsapp{
-  background:#25D366;
-  color:#fff;
-  padding:10px 20px;
-  border-radius:20px;
-  text-decoration:none;
-  font-weight:bold;
-}
-</style>
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+        /* TARJETAS FIJAS */
+        .product-card { background: var(--card-bg); border-radius: var(--radius-card); padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .product-card:active { transform: scale(0.98); }
+        .product-title { font-family: var(--font-brand); font-size: 1.4rem; color: var(--primary-blue); margin-bottom: 10px; font-weight: 800; }
+        .product-desc { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.4; }
+        .price-tag { font-weight: 600; color: var(--primary-blue); font-size: 1.1rem; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: flex-end; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #999; cursor: pointer; border: none; background: none; font-weight: bold; }
+
+        /* FORMULARIOS */
+        .section-title { font-size: 1rem; font-weight: 700; color: var(--primary-blue); margin: 20px 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        
+        /* Select Style */
+        select { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background-color: #F9F9F9; appearance: none; -webkit-appearance: none; color: #333; }
+        .select-wrapper { position: relative; }
+        .select-wrapper::after { content: '▼'; font-size: 12px; color: #999; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
+        /* Checkbox List Style */
+        .checkbox-list { display: flex; flex-direction: column; gap: 10px; }
+        .checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee; }
+        .checkbox-item label { flex-grow: 1; margin-left: 10px; font-size: 0.95rem; }
+        .checkbox-price { font-weight: 600; color: var(--primary-blue); font-size: 0.9rem; }
+        input[type="checkbox"] { transform: scale(1.3); accent-color: var(--primary-blue); }
+
+        .current-price { font-size: 1.8rem; font-weight: 800; color: var(--primary-blue); text-align: center; margin: 25px 0; }
+        .btn-add { width: 100%; background-color: var(--primary-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+        .btn-add:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* CARRITO */
+        .cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 550px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-radius: 100px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; z-index: 150; border: 1px solid rgba(0,0,0,0.05); transition: bottom 0.3s; }
+        .cart-float.hidden { bottom: -150px; }
+        .cart-total { font-weight: 800; color: var(--primary-blue); font-size: 1.1rem; display: block; }
+        .cart-count { font-size: 0.8rem; color: #666; display: block;}
+        .btn-whatsapp { background-color: #25D366; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <h1 id="adminTrigger">Docentes Brown</h1>
-  <p>Herramientas de Gestión Educativa</p>
-</header>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="margin-top:15px; color:#666; font-family: var(--font-brand);">Cargando catálogo...</p>
+    </div>
 
-<div class="container">
-  <div class="product-card" onclick="openModal('profesores')">
-      <div class="product-title">Calificador Profesores</div>
-      <div class="product-desc">Gestión de cursos y promedios</div>
-      <span class="price-tag">Configurar ➜</span>
-  </div>
+    <header>
+        <h1>Docentes Brown</h1>
+        <p>Herramientas de Gestión Educativa</p>
+    </header>
 
-  <div class="product-card" onclick="openModal('maestros')">
-      <div class="product-title">Calificador Maestrxs</div>
-      <div class="product-desc">Grados, notas y asistencia</div>
-      <span class="price-tag">Configurar ➜</span>
-  </div>
+    <div class="container">
+        <div class="product-card" onclick="openModal('profesores')">
+            <div class="product-title">Calificador Profesores</div>
+            <div class="product-desc">Gestiona múltiples cursos. Personalización completa.</div>
+            <span class="price-tag">Configurar ➔</span>
+        </div>
 
-  <div class="product-card" onclick="openModal('digital')">
-      <div class="product-title">Calificador Digital</div>
-      <div class="product-desc">Excel o App móvil</div>
-      <span class="price-tag">Configurar ➜</span>
-  </div>
-</div>
+        <div class="product-card" onclick="openModal('maestros')">
+            <div class="product-title">Calificador Maestrxs</div>
+            <div class="product-desc">Para grados y secciones. Personalización completa.</div>
+            <span class="price-tag">Configurar ➔</span>
+        </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-<div class="modal-content">
-<button class="close-modal" onclick="closeModal()">×</button>
-<h2 id="modalTitle"></h2>
-<div id="dynamic-fields"></div>
-<div class="current-price" id="modal-price">$0</div>
-<button class="btn-add" id="btnAdd" onclick="addToCart()" disabled>Agregar al pedido</button>
-</div>
-</div>
+        <div class="product-card" onclick="openModal('digital')">
+            <div class="product-title">Calificador Digital</div>
+            <div class="product-desc">Versión Excel o App Móvil (Sin cuaderno físico).</div>
+            <span class="price-tag">Ver Opciones ➔</span>
+        </div>
+    </div>
 
-<!-- CARRITO -->
-<div class="cart-float" id="cart">
-<div class="cart-total" id="cartTotal">$0</div>
-<a class="btn-whatsapp" onclick="checkout()">Enviar pedido</a>
-</div>
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2 id="modal-title" style="margin-top:0; color:var(--primary-blue); font-family:var(--font-brand);">Configurar</h2>
+            <form id="config-form">
+                <div id="dynamic-fields"></div>
+            </form>
+            <div class="current-price" id="modal-price">$0</div>
+            <button class="btn-add" id="btn-add-cart" onclick="addToCart()" disabled>Agregar al Pedido</button>
+        </div>
+    </div>
 
-<script>
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?output=csv";
-const WA_NUMBER="5491153196358";
-const ADMIN_PASS="Brown2025";
+    <div class="cart-float hidden" id="cart-float">
+        <div class="cart-info">
+            <span class="cart-count" id="cart-count">0 ítems</span>
+            <span class="cart-total" id="cart-total">Total: $0</span>
+        </div>
+        <a href="#" class="btn-whatsapp" onclick="checkout()">Enviar <span>➤</span></a>
+    </div>
 
-let DATA={prof:[],maes:[],tema:[],dig:[],lib:[],add:[]};
-let cart=[],currentType="",currentSelection={};
-let discount=Number(localStorage.getItem("discount")||0);
+    <script>
+        // --- CONFIGURACIÓN ---
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?gid=885679872&single=true&output=csv";
+        const WA_NUMBER = "5491153196358";
 
-/* CARGA CSV */
-fetch(CSV_URL).then(r=>r.text()).then(t=>{
-  t.split("\n").slice(1).forEach(l=>{
-      const r=l.split(",");
-      if(r[0])DATA.prof.push({n:r[0],p:+r[1]});
-      if(r[2])DATA.maes.push({n:r[2],p:+r[3]});
-      if(r[4])DATA.tema.push({n:r[4],p:+r[5]});
-      if(r[6])DATA.dig.push({n:r[6],p:+r[7]});
-      if(r[8])DATA.lib.push({n:r[8],p:+r[9]});
-      if(r[10])DATA.add.push({n:r[10],p:+r[11]});
-  });
-});
+        // Almacenamiento de datos
+        let CATALOG = {
+            profesores: [], // Col A y B
+            maestros: [],   // Col C y D
+            temas: [],      // Col E (Precio siempre 0)
+            digital: [],    // Col G y H
+            libreria: [],   // Col I y J
+            adicionales: [] // Col K y L
+        };
 
-/* MODAL */
-function openModal(t){
-  currentType=t;
-  document.getElementById("modal").classList.add("active");
-  renderFields();
-}
-function closeModal(){
-  document.getElementById("modal").classList.remove("active");
-}
-function select(label,id,arr){
-  return `<div class="form-group">
-      <label class="form-label">${label}</label>
-      <select id="${id}" onchange="updatePrice()">
-          <option value="0">Seleccionar...</option>
-          ${arr.map(o=>`<option value="${o.p}" data-name="${o.n}">${o.n}</option>`).join("")}
-      </select>
-  </div>`;
-}
-function renderFields(){
-  let h="";
-  if(currentType==="profesores"){
-      h+=select("Cursos","base",DATA.prof);
-      h+=select("Tema","tema",DATA.tema);
-      h+=select("Librería","lib",DATA.lib);
-      h+=select("Adicionales","add",DATA.add);
-      h+=select("Digital","dig",DATA.dig);
-  }
-  if(currentType==="maestros"){
-      h+=select("Grados","base",DATA.maes);
-      h+=select("Tema","tema",DATA.tema);
-      h+=select("Librería","lib",DATA.lib);
-      h+=select("Adicionales","add",DATA.add);
-      h+=select("Digital","dig",DATA.dig);
-  }
-  if(currentType==="digital"){
-      h+=select("Formato","base",DATA.dig);
-  }
-  document.getElementById("dynamic-fields").innerHTML=h;
-  document.getElementById("btnAdd").disabled=true;
-  document.getElementById("modal-price").innerText="$0";
-}
+        let cart = [];
+        let currentProductType = '';
 
-/* PRECIO */
-function updatePrice(){
-  let total=0,valid=true,det=[];
-  document.querySelectorAll("#dynamic-fields select").forEach(s=>{
-      const p=+s.value;
-      if(s.id==="base"&&p===0)valid=false;
-      total+=p;
-      const n=s.options[s.selectedIndex]?.dataset.name;
-      if(n)det.push(n);
-  });
-  if(discount>0)total=Math.round(total*(1-discount/100));
-  document.getElementById("modal-price").innerText="$"+total.toLocaleString("es-AR");
-  document.getElementById("btnAdd").disabled=!valid;
-  currentSelection={price:total,details:det};
-}
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            fetch(CSV_URL)
+                .then(res => res.text())
+                .then(csv => {
+                    parseData(csv);
+                    document.getElementById('loading-screen').style.display = 'none';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error cargando precios. Intente recargar.");
+                });
+        };
 
-/* CARRITO */
-function addToCart(){
-  cart.push(currentSelection.price);
-  closeModal();
-  updateCart();
-}
-function updateCart(){
-  const t=cart.reduce((a,b)=>a+b,0);
-  document.getElementById("cart").classList.add("show");
-  document.getElementById("cartTotal").innerText="$"+t.toLocaleString("es-AR");
-}
-function checkout(){
-  window.open(`https://wa.me/${WA_NUMBER}?text=Total%20$${cart.reduce((a,b)=>a+b,0)}`);
-}
+        function parseData(csv) {
+            const rows = csv.split('\n').slice(1); // Saltar cabecera
+            
+            rows.forEach(row => {
+                // Parse CSV respetando comas dentro de comillas (si las hubiera) o split simple
+                // Asumimos split simple por el formato de google sheets
+                const cols = row.split(',').map(c => c.trim());
+                
+                // Mapeo de columnas (Indices basados en A=0, B=1, etc)
+                
+                // Profesores: A(0), B(1)
+                if(cols[0] && cols[0] !== "") CATALOG.profesores.push({ name: cols[0], price: parseInt(cols[1]) || 0 });
+                
+                // Maestros: C(2), D(3)
+                if(cols[2] && cols[2] !== "") CATALOG.maestros.push({ name: cols[2], price: parseInt(cols[3]) || 0 });
+                
+                // Temas: E(4) - Precio es 0
+                if(cols[4] && cols[4] !== "") CATALOG.temas.push({ name: cols[4], price: 0 });
+                
+                // Digital: G(6), H(7)
+                if(cols[6] && cols[6] !== "") CATALOG.digital.push({ name: cols[6], price: parseInt(cols[7]) || 0 });
+                
+                // Libreria: I(8), J(9)
+                if(cols[8] && cols[8] !== "") CATALOG.libreria.push({ name: cols[8], price: parseInt(cols[9]) || 0 });
+                
+                // Adicionales: K(10), L(11)
+                if(cols[10] && cols[10] !== "") CATALOG.adicionales.push({ name: cols[10], price: parseInt(cols[11]) || 0 });
+            });
+        }
 
-/* ADMIN */
-let clicks=0;
-document.getElementById("adminTrigger").onclick=()=>{
-  clicks++;
-  if(clicks===5){
-      const p=prompt("Contraseña admin:");
-      if(p===ADMIN_PASS){
-          const d=prompt("Descuento %",discount);
-          discount=Number(d||0);
-          localStorage.setItem("discount",discount);
-          alert("Descuento aplicado");
-      }
-      clicks=0;
-  }
-};
-</script>
+        // --- LÓGICA MODAL ---
+        function openModal(type) {
+            currentProductType = type;
+            const container = document.getElementById('dynamic-fields');
+            container.innerHTML = ''; // Limpiar
+            
+            document.getElementById('modal-title').innerText = 
+                type === 'profesores' ? 'Profesores' : 
+                type === 'maestros' ? 'Maestrxs' : 'Digital';
 
+            let html = '';
+
+            // 1. BASE (Select - Obligatorio)
+            if (type === 'profesores') {
+                html += createSelect("1. Cantidad de Cursos", "base", CATALOG.profesores);
+            } else if (type === 'maestros') {
+                html += createSelect("1. Cantidad de Grados", "base", CATALOG.maestros);
+            } else if (type === 'digital') {
+                html += createSelect("1. Formato Digital", "base", CATALOG.digital);
+            }
+
+            // Si es producto físico, mostramos el resto de opciones
+            if (type !== 'digital') {
+                // 2. TEMAS (Select - Obligatorio - Precio 0)
+                html += createSelect("2. Diseño / Tema", "tema", CATALOG.temas);
+
+                // 3. DIGITAL ADICIONAL (Select - Opcional/Uno)
+                // Agregamos opcion "Ninguno" manual al principio
+                let digitalOpts = [{name: "No agregar versión digital", price: 0}, ...CATALOG.digital];
+                html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts);
+
+                // 4. LIBRERIA (Checkbox - Múltiple)
+                if(CATALOG.libreria.length > 0) {
+                    html += createCheckboxSection("4. Opcionales de Librería", "lib", CATALOG.libreria);
+                }
+
+                // 5. ADICIONALES (Checkbox - Múltiple)
+                if(CATALOG.adicionales.length > 0) {
+                    html += createCheckboxSection("5. Adicionales", "add", CATALOG.adicionales);
+                }
+            }
+
+            container.innerHTML = html;
+            updateTotal(); // Calcular precio inicial
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Generadores de HTML
+        function createSelect(label, id, items) {
+            let options = `<option value="0" data-name="">Seleccionar...</option>`;
+            // Si es "digital_addon" o tema, quizás queramos que el primero sea seleccionable por defecto si es "Ninguno"
+            if (id === 'digital_addon') {
+                 options = items.map((item, i) => `<option value="${item.price}" data-name="${item.name}">${item.name} ${item.price > 0 ? '(+$'+item.price+')' : ''}</option>`).join('');
+            } else {
+                 options += items.map(item => `<option value="${item.price}" data-name="${item.name}">${item.name} ${item.price > 0 ? '($'+item.price+')' : ''}</option>`).join('');
+            }
+
+            return `
+                <div class="form-group">
+                    <div class="section-title">${label}</div>
+                    <div class="select-wrapper">
+                        <select id="input-${id}" onchange="updateTotal()">
+                            ${options}
+                        </select>
+                    </div>
+                </div>`;
+        }
+
+        function createCheckboxSection(label, group, items) {
+            let boxes = items.map((item, i) => `
+                <div class="checkbox-item">
+                    <input type="checkbox" id="${group}-${i}" value="${item.price}" data-name="${item.name}" onchange="updateTotal()">
+                    <label for="${group}-${i}">${item.name}</label>
+                    <span class="checkbox-price">$${item.price}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="form-group">
+                    <div class="section-title">${label} (Elige los que quieras)</div>
+                    <div class="checkbox-list">${boxes}</div>
+                </div>`;
+        }
+
+        // --- CÁLCULO ---
+        function updateTotal() {
+            let total = 0;
+            let isValid = true; // Para validar campos obligatorios
+            
+            // 1. Validar Base
+            const baseSelect = document.getElementById('input-base');
+            if (baseSelect) {
+                if (baseSelect.value === "0" && baseSelect.options[baseSelect.selectedIndex].text === "Seleccionar...") {
+                    isValid = false;
+                } else {
+                    total += parseInt(baseSelect.value);
+                }
+            }
+
+            // 2. Validar Tema (Solo si existe)
+            const temaSelect = document.getElementById('input-tema');
+            if (temaSelect) {
+                // Asumimos que tema siempre vale 0, pero debe estar seleccionado
+                if (temaSelect.value === "0" && temaSelect.options[temaSelect.selectedIndex].text === "Seleccionar...") {
+                    isValid = false;
+                }
+            }
+
+            // 3. Sumar Digital Addon (Select)
+            const digSelect = document.getElementById('input-digital_addon');
+            if (digSelect) total += parseInt(digSelect.value);
+
+            // 4. Sumar Checkboxes (Libreria y Adicionales)
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => total += parseInt(cb.value));
+
+            // Actualizar UI
+            document.getElementById('modal-price').innerText = `$${total.toLocaleString('es-AR')}`;
+            document.getElementById('btn-add-cart').disabled = !isValid;
+        }
+
+        function addToCart() {
+            let details = [];
+            let total = 0;
+
+            // Recolectar info de Selects
+            const selects = document.querySelectorAll('select');
+            selects.forEach(sel => {
+                const name = sel.options[sel.selectedIndex].getAttribute('data-name');
+                const price = parseInt(sel.value);
+                if (name && name !== "No agregar versión digital") {
+                    details.push(`${name} ($${price})`);
+                    total += price;
+                }
+            });
+
+            // Recolectar info de Checkboxes
+            const checks = document.querySelectorAll('input[type="checkbox"]:checked');
+            checks.forEach(chk => {
+                const name = chk.getAttribute('data-name');
+                const price = parseInt(chk.value);
+                details.push(`${name} ($${price})`);
+                total += price;
+            });
+
+            let title = currentProductType === 'profesores' ? 'Calificador Profesores' : 
+                        currentProductType === 'maestros' ? 'Calificador Maestrxs' : 'Calificador Digital';
+
+            cart.push({ title, details, total });
+            closeModal();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            if (cart.length > 0) {
+                document.getElementById('cart-float').classList.remove('hidden');
+                let sum = cart.reduce((acc, item) => acc + item.total, 0);
+                document.getElementById('cart-count').innerText = `${cart.length} ítem(s)`;
+                document.getElementById('cart-total').innerText = `Total: $${sum.toLocaleString('es-AR')}`;
+            } else {
+                document.getElementById('cart-float').classList.add('hidden');
+            }
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            
+            let text = "Hola Docentes Brown! 🍎\nQuiero pedir lo siguiente:\n\n";
+            let grandTotal = 0;
+
+            cart.forEach((item, i) => {
+                text += `*${i+1}. ${item.title}*\n`;
+                item.details.forEach(d => text += `   • ${d}\n`);
+                text += `   Subtotal: $${item.total}\n\n`;
+                grandTotal += item.total;
+            });
+
+            text += `*TOTAL FINAL: $${grandTotal.toLocaleString('es-AR')}*`;
+            
+            window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Cerrar al clickear fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target == modal) closeModal();
+        }
+    </script>
 </body>
 </html>
