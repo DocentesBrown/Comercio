@@ -60,6 +60,16 @@
         .price-tag { font-weight: 700; color: var(--primary-blue); font-size: 1.1rem; display: inline-block; background: #f0f4f8; padding: 8px 16px; border-radius: 20px; }
         a.card-link { text-decoration: none; color: inherit; display: block; }
 
+        /* BOTON PREVIEW (NUEVO) */
+        .btn-preview {
+            display: flex; align-items: center; justify-content: center; width: 100%;
+            background-color: #fff; color: var(--primary-blue); border: 2px dashed var(--primary-blue);
+            padding: 15px; border-radius: var(--radius-card); margin-bottom: 20px;
+            text-decoration: none; font-weight: 700; font-size: 1.05rem; transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(26, 59, 92, 0.05);
+        }
+        .btn-preview:hover { background-color: #f0f4f8; transform: scale(0.98); }
+
         /* FOOTER ADMIN */
         .admin-footer {
             text-align: center; padding: 20px; color: #a1a1a6; font-size: 0.8rem; margin-top: 20px;
@@ -81,7 +91,7 @@
         /* FORMULARIOS */
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--primary-blue); margin: 25px 0 12px 0; }
         
-        select, input[type="text"], input[type="password"] { 
+        select, input[type="text"], input[type="password"], input[type="number"] { 
             width: 100%; padding: 14px 16px; border: 1px solid #e5e5ea; border-radius: var(--radius-input); 
             font-size: 1.05rem; background-color: #fff; appearance: none; -webkit-appearance: none; 
             color: var(--text-main); outline: none; font-family: var(--font-main);
@@ -138,6 +148,11 @@
 
         .btn-whatsapp { width: 100%; background-color: #25D366; color: white; padding: 18px; border-radius: 16px; text-decoration: none; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 1.2rem; margin-top: 0; border: none; cursor: pointer; font-family: var(--font-main); }
 
+        /* DATA INPUTS CART */
+        .cart-data-input { margin-bottom: 12px; }
+        .cart-data-label { display: block; font-weight: 600; color: var(--primary-blue); margin-bottom: 5px; font-size: 0.95rem; }
+        .small-note { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; }
+
         /* ADMIN PANEL */
         .admin-list { list-style: none; padding: 0; margin: 0; }
         .admin-list li { background: #f2f2f7; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -169,6 +184,11 @@
             <div class="product-desc">Para grados y secciones. Personalización completa.</div>
             <span class="price-tag">Personalizar ➔</span>
         </div>
+        
+        <a href="https://heyzine.com/flip-book/688a169781.html" target="_blank" class="btn-preview">
+            📖 Muestra de calificador docente físico
+        </a>
+
         <div class="product-card" onclick="openConfigModal('digital')">
             <div class="product-title">Calificador Digital</div>
             <div class="product-desc">Versión Excel o App Móvil (Sin cuaderno físico).</div>
@@ -213,7 +233,25 @@
                 <button class="close-modal-btn" onclick="closeCartModal()">✕</button>
             </div>
             
-            <div id="cart-items-container" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px; padding-bottom: 20px;"></div>
+            <div id="cart-items-container" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px; padding-bottom: 10px;"></div>
+
+            <div style="margin-bottom: 25px; border-top: 1px solid #e5e5ea; padding-top: 20px;" id="personal-data-section">
+                <h3 style="font-size: 1.1rem; color: var(--primary-blue); margin-bottom: 15px;">Tus Datos</h3>
+                
+                <div class="cart-data-input">
+                    <input type="text" id="client-name" placeholder="Nombre Completo *">
+                </div>
+                
+                <div class="cart-data-input">
+                    <input type="text" id="client-cover-name" placeholder="Nombre para la tapa *">
+                    <div style="margin-top:4px; font-size:0.8rem; color:var(--text-secondary); margin-left:5px;">(Tal cual querés que figure en el cuaderno)</div>
+                </div>
+
+                <div class="cart-data-input">
+                    <input type="number" id="client-dni" placeholder="DNI *">
+                </div>
+                <div id="data-error-msg" style="color: var(--danger-red); font-weight:600; font-size: 0.9rem; margin-top: 5px; display: none;">⚠️ Por favor completa todos tus datos.</div>
+            </div>
 
             <div class="coupon-section">
                 <label style="font-weight:600; color:var(--primary-blue); font-size:0.9rem;">¿Tenés un código de descuento?</label>
@@ -319,7 +357,6 @@
                 if(cols[10]) CATALOG.adicionales.push({ name: cols[10], price: parseInt(cols[11]) || 0 });
                 
                 // --- CARGAR CUPONES (COLUMNA M y N) ---
-                // M es índice 12, N es índice 13 (A=0)
                 if(cols[12] && cols[13]) {
                     const code = cols[12].trim().toUpperCase();
                     const percent = parseInt(cols[13].trim());
@@ -565,7 +602,15 @@
             if (cart.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px; display:flex; flex-direction:column; align-items:center;"><span style="font-size:3rem; margin-bottom:20px;">🛒</span><p>Tu carrito está vacío.</p></div>';
                 document.getElementById('cart-final-total').innerText = '$0';
+                
+                // Si el carrito se vacia, ocultar formulario de datos
+                const personalData = document.getElementById('personal-data-section');
+                if(personalData) personalData.style.display = 'none';
                 return;
+            } else {
+                 // Si hay items, mostrar formulario de datos
+                const personalData = document.getElementById('personal-data-section');
+                if(personalData) personalData.style.display = 'block';
             }
 
             cart.forEach((item, index) => {
@@ -608,7 +653,31 @@
 
         function sendToWhatsApp() {
             if (cart.length === 0) return;
+
+            // 1. CAPTURAR DATOS PERSONALES
+            const clientName = document.getElementById('client-name').value.trim();
+            const clientCover = document.getElementById('client-cover-name').value.trim();
+            const clientDni = document.getElementById('client-dni').value.trim();
+            const errorMsg = document.getElementById('data-error-msg');
+
+            // 2. VALIDAR QUE NO ESTEN VACIOS
+            if (!clientName || !clientCover || !clientDni) {
+                errorMsg.style.display = 'block';
+                return; // Cortar ejecucion
+            } else {
+                errorMsg.style.display = 'none';
+            }
+
+            // 3. ARMAR MENSAJE
             let text = "Hola Docentes Brown! 🍎\nQuiero realizar el siguiente pedido:\n\n";
+
+            text += "👤 *MIS DATOS*\n";
+            text += `Nombre: ${clientName}\n`;
+            text += `DNI: ${clientDni}\n`;
+            text += `Nombre en Tapa: ${clientCover}\n`;
+            text += "------------------------------\n\n";
+
+            text += "📦 *DETALLE DEL PEDIDO*\n";
             let subtotal = 0;
             
             cart.forEach((item, i) => {
