@@ -669,15 +669,15 @@
             }
 
             // 3. ARMAR MENSAJE
-            let text = "Hola Docentes Brown! 🍎\nQuiero realizar el siguiente pedido:\n\n";
+            let text = "Hola Docentes Brown! \nQuiero realizar el siguiente pedido:\n\n";
 
-            text += "👤 *MIS DATOS*\n";
+            text += "+ *MIS DATOS*\n";
             text += `Nombre: ${clientName}\n`;
             text += `DNI: ${clientDni}\n`;
             text += `Nombre en Tapa: ${clientCover}\n`;
             text += "------------------------------\n\n";
 
-            text += "📦 *DETALLE DEL PEDIDO*\n";
+            text += "+ *DETALLE DEL PEDIDO*\n";
             let subtotal = 0;
             
             cart.forEach((item, i) => {
