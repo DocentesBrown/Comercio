@@ -60,7 +60,7 @@
         .price-tag { font-weight: 700; color: var(--primary-blue); font-size: 1.1rem; display: inline-block; background: #f0f4f8; padding: 8px 16px; border-radius: 20px; }
         a.card-link { text-decoration: none; color: inherit; display: block; }
 
-        /* BOTON PREVIEW (NUEVO) */
+        /* BOTON PREVIEW */
         .btn-preview {
             display: flex; align-items: center; justify-content: center; width: 100%;
             background-color: #fff; color: var(--primary-blue); border: 2px dashed var(--primary-blue);
@@ -326,7 +326,7 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXegIgxvYuUiHgQBgJIvIexndD6QYUi-UKz0lGem04RYDLkOo3OmdXNME1e63A3g/pub?gid=885679872&single=true&output=csv";
         const WA_NUMBER = "5491153196358";
         const ADMIN_PASS = "Brown2025";
-        const MAX_DISCOUNT_CAP = 3000; // Tope máximo de reintegro
+        const MAX_DISCOUNT_CAP = 3000; 
 
         let CATALOG = { profesores: [], maestros: [], temas: [], digital: [], libreria: [], adicionales: [], cupones: [] };
         let cart = [];
@@ -356,7 +356,6 @@
                 if(cols[8]) CATALOG.libreria.push({ name: cols[8], price: parseInt(cols[9]) || 0 });
                 if(cols[10]) CATALOG.adicionales.push({ name: cols[10], price: parseInt(cols[11]) || 0 });
                 
-                // --- CARGAR CUPONES (COLUMNA M y N) ---
                 if(cols[12] && cols[13]) {
                     const code = cols[12].trim().toUpperCase();
                     const percent = parseInt(cols[13].trim());
@@ -367,7 +366,6 @@
             });
         }
 
-        // --- FUNCIONES ADMIN ---
         function openAdminLogin() { document.getElementById('admin-login-modal').classList.add('active'); }
         function closeAdminLogin() { document.getElementById('admin-login-modal').classList.remove('active'); }
         
@@ -396,7 +394,6 @@
         }
         function closeAdminDashboard() { document.getElementById('admin-dashboard-modal').classList.remove('active'); }
 
-        // --- FUNCIONES VISUALES APP ---
         function openConfigModal(type) {
             currentProductType = type;
             renderConfigForm(type);
@@ -418,7 +415,6 @@
             document.body.style.overflow = '';
         }
 
-        // --- RENDER FORM ---
         function renderConfigForm(type) {
             const container = document.getElementById('dynamic-fields');
             container.innerHTML = '';
@@ -430,7 +426,10 @@
             else if (type === 'digital') html += createSelect("1. Formato Digital", "base", CATALOG.digital);
 
             if (type !== 'digital') {
-                html += createSelect("2. Diseño / Tema", "tema", CATALOG.temas);
+                // ACA SE AGREGA EL BOTON DE CATALOGO DE PORTADAS JUSTO DEBAJO DEL DESPLEGABLE DE DISEÑO
+                html += createSelect("2. ¿Qué diseño de tapa querés?", "tema", CATALOG.temas, "Seleccionar diseño (ej: BIOLOGÍA 1)...");
+                html += `<a href="https://wa.me/c/5491153196358" target="_blank" style="display:block; width:100%; padding:12px; background:#eef6fc; color:#1A3B5C; text-align:center; border-radius:12px; font-weight:700; text-decoration:none; margin-bottom:20px; border: 1px solid #dcebf7;">🎨 Ver Catálogo de portadas</a>`;
+
                 let digitalOpts = [{name: "No agregar versión digital", price: 0}, ...CATALOG.digital];
                 html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts, "No agregar versión digital");
 
@@ -462,7 +461,6 @@
             return `<div class="form-group" id="group-${group}"><div class="section-title">${label} <span style="color:var(--danger-red)">*</span></div><div class="checkbox-list">${boxes}</div></div>`;
         }
 
-        // --- LOGIC CHECKBOXES ---
         function handleNinguno(group, checkbox) {
             if(checkbox.checked) {
                 document.querySelectorAll(`#group-${group} input[type="checkbox"]`).forEach(box => {
@@ -486,7 +484,6 @@
             if(wrapper) checkbox.checked ? wrapper.classList.add('show') : wrapper.classList.remove('show');
         }
 
-        // --- TOTAL CONFIG MODAL ---
         function updateTotal() {
             let total = 0;
             let errors = [];
@@ -551,7 +548,6 @@
             updateCartBar();
         }
 
-        // --- CALCULO DE TOTAL CON TOPE DE DESCUENTO ---
         function calculateDiscountAmount(subtotal, percent) {
             let amount = Math.floor(subtotal * percent / 100);
             if (amount > MAX_DISCOUNT_CAP) {
@@ -560,7 +556,6 @@
             return amount;
         }
 
-        // --- CART LOGIC ---
         function updateCartBar() {
             if (cart.length > 0) {
                 document.getElementById('cart-float').classList.remove('hidden');
@@ -603,12 +598,10 @@
                 container.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px; display:flex; flex-direction:column; align-items:center;"><span style="font-size:3rem; margin-bottom:20px;">🛒</span><p>Tu carrito está vacío.</p></div>';
                 document.getElementById('cart-final-total').innerText = '$0';
                 
-                // Si el carrito se vacia, ocultar formulario de datos
                 const personalData = document.getElementById('personal-data-section');
                 if(personalData) personalData.style.display = 'none';
                 return;
             } else {
-                 // Si hay items, mostrar formulario de datos
                 const personalData = document.getElementById('personal-data-section');
                 if(personalData) personalData.style.display = 'block';
             }
@@ -654,21 +647,18 @@
         function sendToWhatsApp() {
             if (cart.length === 0) return;
 
-            // 1. CAPTURAR DATOS PERSONALES
             const clientName = document.getElementById('client-name').value.trim();
             const clientCover = document.getElementById('client-cover-name').value.trim();
             const clientDni = document.getElementById('client-dni').value.trim();
             const errorMsg = document.getElementById('data-error-msg');
 
-            // 2. VALIDAR QUE NO ESTEN VACIOS
             if (!clientName || !clientCover || !clientDni) {
                 errorMsg.style.display = 'block';
-                return; // Cortar ejecucion
+                return;
             } else {
                 errorMsg.style.display = 'none';
             }
 
-            // 3. ARMAR MENSAJE
             let text = "Hola Docentes Brown! \nQuiero realizar el siguiente pedido:\n\n";
 
             text += "+ *MIS DATOS*\n";
@@ -690,7 +680,7 @@
             if(appliedDiscount.percent > 0) {
                 let discountAmount = calculateDiscountAmount(subtotal, appliedDiscount.percent);
                 text += `Subtotal: $${subtotal}\n`;
-                text += `*Descuento (${appliedDiscount.code}): -$${discountAmount}*\n`;
+                text += `*Descuento (${appliedDiscount.code}): -$${discountAmount}*\\n`;
                 text += `*TOTAL FINAL: $${(subtotal - discountAmount).toLocaleString('es-AR')}*`;
             } else {
                 text += `*TOTAL FINAL: $${subtotal.toLocaleString('es-AR')}*`;
