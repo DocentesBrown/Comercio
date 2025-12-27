@@ -426,9 +426,13 @@
             else if (type === 'digital') html += createSelect("1. Formato Digital", "base", CATALOG.digital);
 
             if (type !== 'digital') {
-                // ACA SE AGREGA EL BOTON DE CATALOGO DE PORTADAS JUSTO DEBAJO DEL DESPLEGABLE DE DISEÑO
-                html += createSelect("2. ¿Qué diseño de tapa querés?", "tema", CATALOG.temas, "Seleccionar diseño (ej: BIOLOGÍA 1)...");
-                html += `<a href="https://wa.me/c/5491153196358" target="_blank" style="display:block; width:100%; padding:12px; background:#eef6fc; color:#1A3B5C; text-align:center; border-radius:12px; font-weight:700; text-decoration:none; margin-bottom:20px; border: 1px solid #dcebf7;">🎨 Ver Catálogo de portadas</a>`;
+                // MODIFICACION AQUI: CAMPO DE TEXTO + BOTON DE CATALOGO
+                html += `<div class="form-group">
+                            <div class="section-title">2. ¿Qué diseño de tapa querés? <span style="color:var(--danger-red)">*</span></div>
+                            <input type="text" id="input-tema" placeholder="Escribí el nombre (ej: BIOLOGÍA 1)..." oninput="updateTotal()">
+                         </div>`;
+                
+                html += `<a href="https://wa.me/c/5491153196358" target="_blank" style="display:block; width:100%; padding:12px; background:#eef6fc; color:#1A3B5C; text-align:center; border-radius:12px; font-weight:700; text-decoration:none; margin-bottom:20px; margin-top:10px; border: 1px solid #dcebf7;">🎨 Ver Catálogo de portadas</a>`;
 
                 let digitalOpts = [{name: "No agregar versión digital", price: 0}, ...CATALOG.digital];
                 html += createSelect("3. ¿Sumar Versión Digital?", "digital_addon", digitalOpts, "No agregar versión digital");
@@ -487,10 +491,19 @@
         function updateTotal() {
             let total = 0;
             let errors = [];
+            
+            // Validar selects
             document.querySelectorAll('select').forEach(sel => {
                 total += parseInt(sel.options[sel.selectedIndex]?.dataset.price || 0);
                 if (sel.value === "") errors.push("Falta seleccionar opción");
             });
+
+            // Validar Input texto de diseño si existe
+            const temaInput = document.getElementById('input-tema');
+            if (temaInput && temaInput.value.trim() === "") {
+                errors.push("Falta escribir el diseño");
+            }
+
             if(document.getElementById('group-lib') && document.querySelectorAll('#group-lib input:checked').length === 0) errors.push("Elige librería");
             if(document.getElementById('group-add') && document.querySelectorAll('#group-add input:checked').length === 0) errors.push("Elige adicionales");
 
@@ -518,6 +531,8 @@
         function addToCart() {
             let details = [];
             let total = 0;
+            
+            // Grabar Selects
             document.querySelectorAll('select').forEach(sel => {
                 const name = sel.value;
                 const price = parseInt(sel.options[sel.selectedIndex].dataset.price);
@@ -526,6 +541,14 @@
                     total += price;
                 }
             });
+
+            // Grabar Input Texto Diseño
+            const temaInput = document.getElementById('input-tema');
+            if (temaInput && temaInput.value.trim() !== "") {
+                details.push(`Diseño: ${temaInput.value.trim()}`);
+            }
+
+            // Grabar Checkboxes
             document.querySelectorAll('input[type="checkbox"]:checked').forEach(chk => {
                 const name = chk.dataset.name;
                 if(name !== "Ninguno") {
@@ -680,7 +703,7 @@
             if(appliedDiscount.percent > 0) {
                 let discountAmount = calculateDiscountAmount(subtotal, appliedDiscount.percent);
                 text += `Subtotal: $${subtotal}\n`;
-                text += `*Descuento (${appliedDiscount.code}): -$${discountAmount}*\\n`;
+                text += `*Descuento (${appliedDiscount.code}): -$${discountAmount}*\n`;
                 text += `*TOTAL FINAL: $${(subtotal - discountAmount).toLocaleString('es-AR')}*`;
             } else {
                 text += `*TOTAL FINAL: $${subtotal.toLocaleString('es-AR')}*`;
