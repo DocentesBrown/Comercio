@@ -112,6 +112,15 @@
         input[type="checkbox"]:checked { background-color: var(--primary-blue); border-color: var(--primary-blue); }
         input[type="checkbox"]:checked::after { content: '✓'; font-size: 14px; color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
 
+        /* DELIVERY RADIO BUTTONS */
+        .delivery-options { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .radio-item { display: flex; align-items: center; background: white; padding: 14px; border: 1px solid #e5e5ea; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .radio-item:active { background-color: #f2f2f7; transform: scale(0.99); }
+        .radio-item input[type="radio"] { width: 20px; height: 20px; margin-right: 12px; accent-color: var(--primary-blue); flex-shrink: 0; }
+        .radio-content { display: flex; flex-direction: column; }
+        .radio-title { font-weight: 600; font-size: 1rem; color: var(--text-main); margin-bottom: 2px; }
+        .radio-desc { font-size: 0.85rem; color: var(--text-secondary); }
+
         /* QTY INPUT */
         .qty-input-wrapper { display: none; padding: 12px 16px; background: #f2f2f7; border-top: 1px solid #e5e5ea; align-items: center; justify-content: space-between; animation: fadeIn 0.3s; }
         .qty-input-wrapper.show { display: flex; }
@@ -250,7 +259,27 @@
                 <div class="cart-data-input">
                     <input type="number" id="client-dni" placeholder="DNI *">
                 </div>
-                <div id="data-error-msg" style="color: var(--danger-red); font-weight:600; font-size: 0.9rem; margin-top: 5px; display: none;">⚠️ Por favor completa todos tus datos.</div>
+
+                <div class="cart-data-input" style="margin-top: 20px;">
+                    <label class="cart-data-label">Método de entrega *</label>
+                    <div class="delivery-options">
+                        <label class="radio-item">
+                            <input type="radio" name="deliveryMethod" value="envio" id="del-envio">
+                            <div class="radio-content">
+                                <span class="radio-title">Envío</span>
+                                <span class="radio-desc">A cargo del comprador</span>
+                            </div>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="deliveryMethod" value="presencial" id="del-presencial">
+                            <div class="radio-content">
+                                <span class="radio-title">Entrega Presencial</span>
+                                <span class="radio-desc">Gratis (puntos de entrega en Alte. Brown)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div id="data-error-msg" style="color: var(--danger-red); font-weight:600; font-size: 0.9rem; margin-top: 15px; display: none;">⚠️ Por favor completa todos tus datos y elige el envío.</div>
             </div>
 
             <div class="coupon-section">
@@ -426,7 +455,6 @@
             else if (type === 'digital') html += createSelect("1. Formato Digital", "base", CATALOG.digital);
 
             if (type !== 'digital') {
-                // MODIFICACION AQUI: CAMPO DE TEXTO + BOTON DE CATALOGO
                 html += `<div class="form-group">
                             <div class="section-title">2. ¿Qué diseño de tapa querés? <span style="color:var(--danger-red)">*</span></div>
                             <input type="text" id="input-tema" placeholder="Escribí el nombre (ej: BIOLOGÍA 1)..." oninput="updateTotal()">
@@ -673,9 +701,13 @@
             const clientName = document.getElementById('client-name').value.trim();
             const clientCover = document.getElementById('client-cover-name').value.trim();
             const clientDni = document.getElementById('client-dni').value.trim();
+            
+            // LOGICA NUEVA PARA DETECTAR ENVIO
+            const deliveryEnvio = document.getElementById('del-envio');
+            const deliveryPresencial = document.getElementById('del-presencial');
             const errorMsg = document.getElementById('data-error-msg');
 
-            if (!clientName || !clientCover || !clientDni) {
+            if (!clientName || !clientCover || !clientDni || (!deliveryEnvio.checked && !deliveryPresencial.checked)) {
                 errorMsg.style.display = 'block';
                 return;
             } else {
@@ -688,6 +720,11 @@
             text += `Nombre: ${clientName}\n`;
             text += `DNI: ${clientDni}\n`;
             text += `Nombre en Tapa: ${clientCover}\n`;
+            
+            // AGREGAR INFO DE ENTREGA AL MENSAJE
+            let deliveryText = deliveryEnvio.checked ? "Envío (A cargo del comprador)" : "Entrega Presencial (Gratis en Alte. Brown)";
+            text += `Entrega: ${deliveryText}\n`;
+            
             text += "------------------------------\n\n";
 
             text += "+ *DETALLE DEL PEDIDO*\n";
